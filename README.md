@@ -2077,6 +2077,9 @@ verification oracles) and it destroys data on hosts that merely removed the
 package. Real uninstalls are a human step — ship a "removing this module"
 snippet in your README instead.
 
+Core keeps a short pointer to this section for people who start from the
+core repo: `dev_docs/guides/2026-09-05-module-table-extraction-guide.md`.
+
 #### Testing your migration
 
 A coordinator that compiles is not a coordinator that runs. `up/1` uses

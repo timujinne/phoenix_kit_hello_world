@@ -56,10 +56,31 @@ defmodule PhoenixKitHelloWorld do
 
   ## JavaScript
 
-  External modules cannot inject into the parent app's JS build pipeline.
-  All JavaScript must be **inline `<script>` tags** in your templates.
-  Register hooks on `window.PhoenixKitHooks` — PhoenixKit spreads this
-  into the LiveSocket automatically. See the README for full details.
+  A LiveView hook must be in the host's single `LiveSocket` at construction
+  time, so hooks are delivered as **prebuilt bundles declared by
+  `js_sources/0`** — never from an inline `<script>`, which morphdom does not
+  execute when the page is reached via `navigate/2` (the hook then binds to
+  nothing, silently).
+
+  Prefer a core hook first: core's hooks ship in PhoenixKit's own bundle and
+  are registered on every page load. When core has none, ship your own
+  `priv/static/assets/<app>.js` assigning hooks to a namespaced global and
+  declare it:
+
+      @impl PhoenixKit.Module
+      def js_sources do
+        [%{app: :my_module, file: "static/assets/my_module.js", global: "MyModuleHooks"}]
+      end
+
+  The `:phoenix_kit_js_sources` compiler folds that global into
+  `window.PhoenixKitHooks`, which the host already spreads into the
+  `LiveSocket` — no parent-app `app.js` edit. The `:global` must be unique
+  across modules (the compiler fails loudly on a collision) and hook names
+  inside the bundle must be namespaced too, since the fold is last-write-wins
+  on hook names and would otherwise override a core hook.
+
+  hello_world ships no hooks of its own, so it leaves `js_sources/0` at its
+  `[]` default.
 
   ## Callbacks overview
 
@@ -79,11 +100,17 @@ defmodule PhoenixKitHelloWorld do
   | `route_module/0`          | No        | Module providing custom route macros               |
   | `user_dashboard_tabs/0`   | No        | Tabs for the user-facing dashboard                 |
   | `migration_module/0`      | No        | Versioned migration coordinator module             |
+  | `css_sources/0`           | No        | OTP apps whose templates Tailwind scans            |
+  | `js_sources/0`            | No        | Prebuilt JS hook bundles for the host LiveSocket   |
   | `required_integrations/0` | No        | Integration provider keys this module needs        |
   | `integration_providers/0` | No        | Custom provider definitions to contribute          |
   """
 
   use PhoenixKit.Module
+
+  # Single-sourced from mix.exs, read at compile time, so a version bump is one
+  # edit. The behaviour test asserts version/0 against Mix.Project.config().
+  @version Mix.Project.config()[:version]
 
   alias PhoenixKit.Dashboard.Tab
   alias PhoenixKit.Settings
@@ -146,7 +173,7 @@ defmodule PhoenixKitHelloWorld do
 
   @impl PhoenixKit.Module
   @doc "Version string. Shown on the admin Modules page."
-  def version, do: "0.2.2"
+  def version, do: @version
 
   @impl PhoenixKit.Module
   @doc """

@@ -48,11 +48,11 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidgetTest do
       html =
         render_widget(
           view: "card",
-          scope: %{user: %{email: "max@don.ee"}},
+          scope: %{user: %{email: "user@example.com"}},
           settings: %{"greeting" => "Hei", "tone" => "success", "punctuation" => "?!"}
         )
 
-      assert html =~ "Hei, max?!"
+      assert html =~ "Hei, user?!"
       assert html =~ "text-success"
       # show_size defaults on.
       assert html =~ "3 × 2"
