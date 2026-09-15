@@ -77,9 +77,10 @@
 #   @doc """
 #   The table whose COMMENT carries the version marker.
 #
-#   Not part of the protocol Core calls. Export it so an auditor can check
-#   that your marker is really a number without hard-coding your table name
-#   — see `mix phoenix_kit_hello_world.audit_migrations`.
+#   Not part of the protocol Core calls. Export it so an auditor can verify
+#   your marker really carries a version (a bare number, or a namespaced
+#   marker for an adopted table) without hard-coding your table name — see
+#   `mix phoenix_kit_hello_world.audit_migrations`.
 #   """
 #   def version_table, do: @version_table
 #
@@ -426,3 +427,7 @@
 #   your marker (`pkl_schema:1`, `dcr_schema:1`, `pkp_schema:14`) so your
 #   reader can tell its own marker from a foreign comment, and treat any
 #   foreign comment as version 0, never crash on it.
+#
+#   `mix phoenix_kit_hello_world.audit_migrations` accepts both a bare
+#   number and a `<namespace>:<number>` marker, so a namespaced marker
+#   never fails the audit.

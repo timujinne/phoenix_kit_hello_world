@@ -1,3 +1,23 @@
+## Unreleased
+
+### Fixed
+
+- `mix phoenix_kit_hello_world.audit_migrations` no longer fails coordinators
+  that follow the documented namespaced marker convention for adopted tables
+  (`pkl_schema:1`, `pkb_schema:4`, `pkp_schema:14`, ...). The check —
+  previously "version marker is numeric", now "version marker is a version" —
+  accepts both a bare number and a `<namespace>:<number>` marker.
+- The `absent schema reports 0` check's own fixture prefix was 22 bytes,
+  over core's `validate_prefix!/1` 20-byte ceiling, so a coordinator that
+  correctly delegates prefix validation to core raised `ArgumentError` and
+  the check reported a false failure. Shortened the fixture to 15 bytes.
+- The `protocol` check always blamed `mix phoenix_kit.update` for a missing
+  function, even when the only function missing was `migrated_version/1` —
+  which `mix phoenix_kit.update` never calls directly (it is read by the
+  coordinator's own `up/1` to re-read the version mid-migration). The
+  message now names the accurate consequence for whichever function is
+  actually missing.
+
 ## 0.2.2 - 2026-08-11
 
 ### Changed

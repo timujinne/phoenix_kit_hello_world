@@ -1729,7 +1729,8 @@ defmodule MyModule.Migrations do
   The table whose COMMENT carries the version marker.
 
   Not part of the protocol core calls. Export it so an auditor can verify your
-  marker is really a number without hard-coding your table name — see
+  marker really carries a version (a bare number, or a namespaced marker for
+  an adopted table) without hard-coding your table name — see
   `mix phoenix_kit_hello_world.audit_migrations`.
   """
   def version_table, do: @version_table
@@ -1996,9 +1997,10 @@ Run in the host app against a migrated database. For every installed module that
 declares a `migration_module/0` it checks the protocol exports, that an absent
 schema reports 0, that an unusable prefix raises instead of reporting 0, that the
 reported version is not ahead of the shipped code, and — when the coordinator
-exports `version_table/0` — that the stored marker is actually a number rather
-than someone's prose description. Read-only, and exits non-zero on failure so it
-can gate a release.
+exports `version_table/0` — that the stored marker actually carries a version —
+a bare number, or a namespaced marker like `pkl_schema:1` for an adopted table —
+rather than someone's prose description. Read-only, and exits non-zero on
+failure so it can gate a release.
 
 Everything it checks is silent when broken, which is the point: none of these
 defects produce an error message, and a database-less test suite cannot see any
