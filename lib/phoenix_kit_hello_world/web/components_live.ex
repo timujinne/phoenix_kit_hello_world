@@ -87,6 +87,8 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
     {:ok,
      assign(socket,
        page_title: Gettext.gettext(PhoenixKitWeb.Gettext, "Components"),
+       page_section: Gettext.gettext(PhoenixKitWeb.Gettext, "Hello World"),
+       page_section_path: Paths.index(),
        page_subtitle:
          Gettext.gettext(
            PhoenixKitWeb.Gettext,

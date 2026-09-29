@@ -31,6 +31,7 @@ defmodule PhoenixKitHelloWorld.Test.Router do
       live("/", HelloLive, :index)
       live("/events", EventsLive, :index)
       live("/components", ComponentsLive, :index)
+      live("/notifications", NotificationsLive, :index)
     end
   end
 end

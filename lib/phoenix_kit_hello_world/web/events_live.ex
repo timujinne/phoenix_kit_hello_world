@@ -17,8 +17,8 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
      hook ships in PhoenixKit's own JS bundle, so it is registered on every
      page load — unlike a per-page inline `<script>`, which never executes
      when the page is reached through `navigate/2`.
-  4. All PhoenixKit.Activity calls are guarded with `Code.ensure_loaded?/1`
-     so the module works even on hosts without activity logging.
+  4. `PhoenixKit.Activity` is called directly — the core floor carries it, so
+     no `Code.ensure_loaded?/1` guard; a failing read leaves the page as it was.
   """
 
   use Phoenix.LiveView
@@ -41,6 +41,8 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
      socket
      |> assign(
        page_title: Gettext.gettext(PhoenixKitWeb.Gettext, "Events"),
+       page_section: Gettext.gettext(PhoenixKitWeb.Gettext, "Hello World"),
+       page_section_path: Paths.index(),
        page_subtitle:
          Gettext.gettext(
            PhoenixKitWeb.Gettext,
@@ -120,16 +122,9 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
   end
 
   defp load_filter_options(socket) do
-    if Code.ensure_loaded?(PhoenixKit.Activity) do
-      all = PhoenixKit.Activity.list(module: "hello_world", per_page: 1000, preload: [])
-
-      action_types =
-        all.entries |> Enum.map(& &1.action) |> Enum.uniq() |> Enum.sort()
-
-      assign(socket, action_types: action_types)
-    else
-      socket
-    end
+    all = PhoenixKit.Activity.list(module: "hello_world", per_page: 1000, preload: [])
+    action_types = all.entries |> Enum.map(& &1.action) |> Enum.uniq() |> Enum.sort()
+    assign(socket, action_types: action_types)
   rescue
     _ -> socket
   end
@@ -142,31 +137,27 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
   end
 
   defp load_next_page(socket) do
-    if Code.ensure_loaded?(PhoenixKit.Activity) do
-      result =
-        PhoenixKit.Activity.list(
-          module: "hello_world",
-          page: socket.assigns.page,
-          per_page: @per_page,
-          action: socket.assigns.filter_action,
-          preload: [:actor]
-        )
-
-      socket
-      |> stream(:entries, result.entries)
-      |> assign(
-        total: result.total,
-        # `<.load_more>` needs the number of rows actually rendered. The stream
-        # is append-only between resets, so accumulate rather than deriving it
-        # from `page * @per_page` (which overshoots on a short final page).
-        loaded: socket.assigns.loaded + length(result.entries),
-        page: socket.assigns.page + 1,
-        has_more: result.page < result.total_pages,
-        loading: false
+    result =
+      PhoenixKit.Activity.list(
+        module: "hello_world",
+        page: socket.assigns.page,
+        per_page: @per_page,
+        action: socket.assigns.filter_action,
+        preload: [:actor]
       )
-    else
-      assign(socket, loading: false)
-    end
+
+    socket
+    |> stream(:entries, result.entries)
+    |> assign(
+      total: result.total,
+      # `<.load_more>` needs the number of rows actually rendered. The stream
+      # is append-only between resets, so accumulate rather than deriving it
+      # from `page * @per_page` (which overshoots on a short final page).
+      loaded: socket.assigns.loaded + length(result.entries),
+      page: socket.assigns.page + 1,
+      has_more: result.page < result.total_pages,
+      loading: false
+    )
   rescue
     _ -> assign(socket, loading: false)
   end

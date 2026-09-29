@@ -83,7 +83,12 @@ defmodule PhoenixKitHelloWorld.MixProject do
       # 1.7.214+ required: Scope.can_access_admin_area?/1 (the rename of the
       # now-`@deprecated` Scope.admin?/1) — an older core has no such function,
       # so this is an UndefinedFunctionError at runtime, not a warning.
-      pk_dep(:phoenix_kit, "~> 2.0"),
+      # 2.38.0 is the floor now: the actor and the activity log come from
+      # `PhoenixKitWeb.Actor` and `PhoenixKit.Activity.log/3`, first shipped
+      # there and no longer feature-detected, so a lower core fails to compile.
+      # Patch-precise floor in the compound form, so the ceiling stays open
+      # through every later 2.x minor (see test/core_pin_conformance_test.exs).
+      pk_dep(:phoenix_kit, ">= 2.38.0 and < 3.0.0"),
       # Build MDEx's Rust NIF from source on OTP versions it ships no
       # compatible precompiled NIF for — same escape hatch core's mix.exs
       # carries: MDEx's force_build requires rustler itself, not just
