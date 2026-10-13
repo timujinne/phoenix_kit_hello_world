@@ -14,9 +14,18 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
         id={instance_id}
         settings={%{"greeting" => "Hi", ...}}  # this instance's saved settings
         view={"card" | "counter" | "contract"} # the selected render variant
-        size={%{w: 4, h: 2}}                   # the instance's current span (cells)
+        size={%{w: 12, h: 8}}                  # the instance's current span, in
+                                               # lattice cells (25px nominal squares)
         scope={@phoenix_kit_current_scope}     # the viewer — personalize with it
+        context={%{"projects.project" => id}}  # what the page is about; %{} on
+                                               # a context-free dashboard
       />
+
+  `settings` arrives already resolved: for a settings field declared with
+  `context:` the host writes the page's (or the viewer's) subject id into that
+  field before render, so a widget reads its subject from `settings` like any
+  other value. The `context` assign is the whole bag, for a widget that wants
+  more than its own fields; nothing requires reading it.
 
   It runs inside the host LiveView's process (LiveComponents have no process of
   their own). When the catalog entry declares a `refresh_interval`, the host
@@ -40,10 +49,22 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
     when the widget queries data of its own (see the projects widgets).
   - Render defensively: every setting read uses a default, `size`/`view`/`scope`
     may be nil, and a widget must NEVER crash the host dashboard.
-  - A single-row instance (`size.h < 2`) renders compact — tighter paddings,
-    smaller text — so the minimum box fits without scrollbars.
+  - `min_size` is a recommendation, not a guarantee: a user may override it
+    per instance down to 1×1. An instance shorter than this widget's declared
+    minimum height renders compact — tighter paddings, smaller text — so
+    the undersized box still shows its content without scrollbars.
+  - A `:text` setting is edited in the host's rich editor, so its value is
+    rich content (Markdown or HTML). Render it through core's `<.markdown>`,
+    which sanitises by default — never `raw/1` a user's text.
   """
   use Phoenix.LiveComponent
+  use Gettext, backend: PhoenixKitHelloWorld.Gettext
+
+  import PhoenixKitWeb.Components.Core.Markdown, only: [markdown: 1]
+
+  # The `min_size.h` this widget declares in `phoenix_kit_widgets/0`. Keep the
+  # two in step: below it the instance is undersized and renders compact.
+  @min_height 4
 
   @impl true
   def update(assigns, socket) do
@@ -61,8 +82,10 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
      |> assign(:view, assigns[:view] || "card")
      |> assign(:size, size)
      |> assign(:scope, assigns[:scope])
+     |> assign(:context, context(assigns[:context]))
      |> assign(:greeting, Map.get(settings, "greeting", "Hello"))
-     |> assign(:note, Map.get(settings, "note", ""))
+     |> assign(:note, text(Map.get(settings, "note")))
+     |> assign(:project, text(Map.get(settings, "project")))
      |> assign(:tone, tone_class(Map.get(settings, "tone", "")))
      |> assign(:punctuation, Map.get(settings, "punctuation", "!"))
      |> assign(:show_size, Map.get(settings, "show_size", true) in [true, "true"])
@@ -83,7 +106,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
       <div class={["flex items-center gap-2", if(@compact, do: "mb-1", else: "mb-2")]}>
         <span aria-hidden="true">👋</span>
         <h3 class={["truncate font-semibold", if(@compact, do: "text-xs", else: "text-sm")]}>
-          {Gettext.gettext(PhoenixKitWeb.Gettext, "Hello world")}
+          {gettext("Hello world")}
         </h3>
         <span class="ml-auto badge badge-ghost badge-xs">{@view}</span>
       </div>
@@ -94,9 +117,16 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
           <p class={["font-semibold", @tone, if(@compact, do: "text-lg", else: "text-2xl")]}>
             {@greeting}, {@who}{@punctuation}
           </p>
-          <p :if={@note != ""} class="text-xs text-base-content/60">{@note}</p>
+          <%!-- A :text setting is rich content from the host's editor:
+          core's <.markdown> renders it and sanitises the result. --%>
+          <.markdown :if={@note != ""} content={@note} compact class="text-xs text-base-content/60" />
+          <%!-- The `context:` field: on a page about a project the host has
+          already written that project's id into settings["project"]. --%>
+          <p :if={@project != ""} class="text-[11px] text-base-content/40 break-all">
+            {gettext("Project: %{id}", id: @project)}
+          </p>
           <p :if={@show_size and @size} class="text-[11px] text-base-content/40 tabular-nums">
-            {@size.w} × {@size.h} {Gettext.gettext(PhoenixKitWeb.Gettext, "cells")}
+            {gettext("%{w} × %{h} cells", w: @size.w, h: @size.h)}
           </p>
         </div>
 
@@ -107,7 +137,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
             {@ticks}
           </span>
           <p class="text-[11px] text-base-content/40 tabular-nums">
-            {Gettext.gettext(PhoenixKitWeb.Gettext, "last tick")} {Calendar.strftime(@ticked_at, "%H:%M:%S")}
+            {gettext("last tick %{time}", time: Calendar.strftime(@ticked_at, "%H:%M:%S"))}
           </p>
         </div>
 
@@ -122,6 +152,8 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
           <dd class="truncate">
             {if @who == default_who(), do: "(none)", else: "user: " <> @who}
           </dd>
+          <dt class="text-base-content/50">context</dt>
+          <dd class="whitespace-pre-wrap break-all">{inspect(@context, pretty: true)}</dd>
           <dt class="text-base-content/50">settings</dt>
           <dd class="whitespace-pre-wrap break-all">{inspect(@settings, pretty: true)}</dd>
         </dl>
@@ -153,8 +185,16 @@ defmodule PhoenixKitHelloWorld.Web.HelloWidget do
 
   defp viewer_name(_scope), do: default_who()
 
-  defp default_who, do: Gettext.gettext(PhoenixKitWeb.Gettext, "world")
+  defp default_who, do: gettext("world")
 
-  defp compact?(%{h: h}) when is_integer(h), do: h < 2
+  defp compact?(%{h: h}) when is_integer(h), do: h < @min_height
   defp compact?(_size), do: false
+
+  # A settings value is whatever was stored — read it as text or as nothing.
+  defp text(value) when is_binary(value), do: value
+  defp text(_value), do: ""
+
+  # The host passes a map of context kind => id; anything else is no context.
+  defp context(%{} = context), do: context
+  defp context(_other), do: %{}
 end

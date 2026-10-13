@@ -24,9 +24,14 @@ defmodule PhoenixKitHelloWorld.LiveCase do
   Hello World's LiveViews read `socket.assigns[:phoenix_kit_current_scope]`
   and `socket.assigns[:phoenix_kit_current_user]` to decide what UI to
   show (the "Log demo event" button is hidden for users without the
-  `hello_world` permission). Tests can plug a fake scope via
-  `with_scope/2` (a Plug-style helper that sets `:phoenix_kit_current_scope`
-  on the conn before `live/2`).
+  `hello_world` permission). Build a scope with `fake_scope/1` and put it in
+  the session with `put_test_scope/2`; the test router's `:assign_scope`
+  `on_mount` hook mirrors it onto the socket, the way core's admin
+  `live_session` does in production.
+
+  A page whose rows have a foreign key to `phoenix_kit_users` (notifications)
+  needs a real user: `user_fixture/1` inserts one, and
+  `fake_scope(user_uuid: user.uuid, email: user.email)` signs it in.
   """
 
   use ExUnit.CaseTemplate
@@ -45,6 +50,7 @@ defmodule PhoenixKitHelloWorld.LiveCase do
   end
 
   alias Ecto.Adapters.SQL.Sandbox
+  alias PhoenixKit.Users.Auth.User
   alias PhoenixKitHelloWorld.Test.Repo, as: TestRepo
 
   setup tags do
@@ -98,6 +104,22 @@ defmodule PhoenixKitHelloWorld.LiveCase do
       cached_roles: MapSet.new(roles),
       cached_permissions: MapSet.new(permissions)
     }
+  end
+
+  @doc """
+  Inserts a real `phoenix_kit_users` row through core's registration
+  changeset and returns it. Needed wherever a row references a user by
+  foreign key — a made-up uuid violates the constraint.
+  """
+  def user_fixture(opts \\ []) do
+    email = Keyword.get(opts, :email, "user-#{System.unique_integer([:positive])}@example.com")
+
+    %User{}
+    |> User.registration_changeset(%{
+      email: email,
+      password: "ValidPassword123!"
+    })
+    |> TestRepo.insert!()
   end
 
   @doc """

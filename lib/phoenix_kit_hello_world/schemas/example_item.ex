@@ -51,7 +51,10 @@
 #     field :status, :string, default: "active"
 #     field :data, :map, default: %{}
 #
-#     timestamps(type: :utc_datetime)
+#     # Same type as the migration's `timestamps(type: :utc_datetime_usec)`:
+#     # a schema declared `:utc_datetime` over a microsecond column truncates
+#     # on every write and raises on a struct that still carries microseconds.
+#     timestamps(type: :utc_datetime_usec)
 #   end
 #
 #   @doc false

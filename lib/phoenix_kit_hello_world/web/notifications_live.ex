@@ -35,6 +35,9 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
   """
 
   use Phoenix.LiveView
+  use Gettext, backend: PhoenixKitHelloWorld.Gettext
+
+  require Logger
 
   import PhoenixKitWeb.Components.Core.EmptyState, only: [empty_state: 1]
   import PhoenixKitWeb.Components.Core.Icon, only: [icon: 1]
@@ -54,65 +57,52 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
     user_uuid = Actor.uuid(socket)
 
     if connected?(socket) and is_binary(user_uuid) do
-      # One line to receive {:notification_created | :notification_seen |
-      # :notification_dismissed, notification} and {:notifications_bulk_updated, _}.
+      # One line to receive {:notification_created | :notification_updated |
+      # :notification_seen | :notification_dismissed, notification} and
+      # {:notifications_bulk_updated, kind}.
       Events.subscribe(user_uuid)
     end
 
-    {:ok,
-     socket
-     |> assign(
-       page_title: Gettext.gettext(PhoenixKitWeb.Gettext, "Notifications"),
-       page_section: Gettext.gettext(PhoenixKitWeb.Gettext, "Hello World"),
-       page_section_path: Paths.index(),
-       page_subtitle:
-         Gettext.gettext(
-           PhoenixKitWeb.Gettext,
-           "How to send, customize, and manage notifications"
-         ),
-       user_uuid: user_uuid,
-       available: true,
-       unread: 0,
-       recent: []
-     )
-     |> refresh()}
+    socket =
+      assign(socket,
+        page_title: gettext("Notifications"),
+        page_section: gettext("Hello World"),
+        page_section_path: Paths.index(),
+        page_subtitle: gettext("How to send, customize, and manage notifications"),
+        user_uuid: user_uuid,
+        unread: 0,
+        recent: []
+      )
+
+    # mount/3 runs twice — once for the static HTML, once when the socket
+    # connects. Read the database only on the connected pass, so the page
+    # costs one set of queries, not two.
+    {:ok, if(connected?(socket), do: refresh(socket), else: socket)}
   end
 
   # ── Sending ────────────────────────────────────────────────────────────────
 
   @impl true
   def handle_event("send_basic", _params, socket) do
-    log_demo_activity(socket, "hello.greeting", %{
+    socket
+    |> log_demo_activity("hello.greeting", %{
       "actor_role" => "system",
       "greeting" => "Hello there!"
     })
-
-    {:noreply,
-     socket
-     |> put_flash(
-       :info,
-       Gettext.gettext(PhoenixKitWeb.Gettext, "Sent — check the bell (and the list below).")
-     )
-     |> refresh()}
+    |> sent(socket, gettext("Sent — check the bell (and the list below)."))
   end
 
   def handle_event("send_custom", _params, socket) do
     # The three `notification_*` metadata keys fully control how the row renders
     # in the inbox. Any one can be omitted — Render falls back to the action.
-    log_demo_activity(socket, "hello.custom", %{
+    socket
+    |> log_demo_activity("hello.custom", %{
       "actor_role" => "system",
       "notification_text" => "👋 A fully custom notification from Hello World!",
       "notification_icon" => "hero-sparkles",
       "notification_link" => Paths.notifications()
     })
-
-    {:noreply,
-     socket
-     |> put_flash(
-       :info,
-       Gettext.gettext(PhoenixKitWeb.Gettext, "Sent a custom-display notification.")
-     )
-     |> refresh()}
+    |> sent(socket, gettext("Sent a custom-display notification."))
   end
 
   # ── Managing (mark seen / dismiss) ───────────────────────────────────────────
@@ -142,10 +132,18 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
 
   @impl true
   def handle_info({:notification_created, _n}, socket), do: {:noreply, refresh(socket)}
+  def handle_info({:notification_updated, _n}, socket), do: {:noreply, refresh(socket)}
   def handle_info({:notification_seen, _n}, socket), do: {:noreply, refresh(socket)}
   def handle_info({:notification_dismissed, _n}, socket), do: {:noreply, refresh(socket)}
   def handle_info({:notifications_bulk_updated, _kind}, socket), do: {:noreply, refresh(socket)}
-  def handle_info(_msg, socket), do: {:noreply, socket}
+
+  # Defensive catch-all so a stray PubSub broadcast or OTP message can't
+  # crash this LiveView with a FunctionClauseError. Logs at :debug so it
+  # never spams in production but stays grep-able during development.
+  def handle_info(msg, socket) do
+    Logger.debug("[#{inspect(__MODULE__)}] Unhandled info: #{inspect(msg)}")
+    {:noreply, socket}
+  end
 
   # ── Render ───────────────────────────────────────────────────────────────────
 
@@ -153,27 +151,15 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
   def render(assigns) do
     ~H"""
     <div class="flex flex-col px-4 py-6 space-y-6">
-      <div :if={not @available} class="alert alert-warning">
-        <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
-        <span>
-          {Gettext.gettext(
-            PhoenixKitWeb.Gettext,
-            "This host doesn't have PhoenixKit.Notifications loaded, so the live demo is disabled. The code patterns below still apply."
-          )}
-        </span>
-      </div>
-
       <%!-- Intro --%>
       <div class="card bg-base-100 shadow">
         <div class="card-body">
           <h2 class="card-title">
             <.icon name="hero-bell-alert" class="w-5 h-5" />
-            {Gettext.gettext(PhoenixKitWeb.Gettext, "Notifications, the PhoenixKit way")}
+            {gettext("Notifications, the PhoenixKit way")}
           </h2>
           <p class="text-base-content/70">
-            {Gettext.gettext(
-              PhoenixKitWeb.Gettext,
-              "You never write to phoenix_kit_notifications directly. You log a business activity with a target_uuid, and core turns it into that user's notification — when target_uuid != actor_uuid."
+            {gettext("You never write to phoenix_kit_notifications directly. You log a business activity with a target_uuid, and core turns it into that user's notification — when target_uuid != actor_uuid."
             )}
           </p>
           <pre phx-no-curly-interpolation class="bg-base-200 rounded-lg p-3 text-xs overflow-x-auto"><code>PhoenixKit.Activity.log("hello_world", "post.created",  # module_key(), "resource.verb"
@@ -190,28 +176,28 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
       <div class="card bg-base-100 shadow">
         <div class="card-body">
           <div class="flex items-center justify-between flex-wrap gap-2">
-            <h2 class="card-title">{Gettext.gettext(PhoenixKitWeb.Gettext, "Try it")}</h2>
+            <h2 class="card-title">{gettext("Try it")}</h2>
             <div class="badge badge-lg badge-primary gap-2">
               <.icon name="hero-bell" class="w-4 h-4" />
-              {Gettext.gettext(PhoenixKitWeb.Gettext, "%{count} unread", count: @unread)}
+              {gettext("%{count} unread", count: @unread)}
             </div>
           </div>
 
           <div class="flex flex-wrap gap-2 mt-2">
-            <button class="btn btn-primary btn-sm" phx-click="send_basic" disabled={not @available}>
+            <button class="btn btn-primary btn-sm" phx-click="send_basic" phx-disable-with={gettext("Sending…")}>
               <.icon name="hero-paper-airplane" class="w-4 h-4" />
-              {Gettext.gettext(PhoenixKitWeb.Gettext, "Send a notification")}
+              {gettext("Send a notification")}
             </button>
-            <button class="btn btn-secondary btn-sm" phx-click="send_custom" disabled={not @available}>
+            <button class="btn btn-secondary btn-sm" phx-click="send_custom" phx-disable-with={gettext("Sending…")}>
               <.icon name="hero-sparkles" class="w-4 h-4" />
-              {Gettext.gettext(PhoenixKitWeb.Gettext, "Send with custom display")}
+              {gettext("Send with custom display")}
             </button>
           </div>
 
           <div class="mt-4 grid md:grid-cols-2 gap-3">
             <div>
               <p class="text-xs font-semibold text-base-content/60 uppercase mb-1">
-                {Gettext.gettext(PhoenixKitWeb.Gettext, "Plain")}
+                {gettext("Plain")}
               </p>
               <pre phx-no-curly-interpolation class="bg-base-200 rounded-lg p-3 text-xs overflow-x-auto"><code>PhoenixKit.Activity.log("hello_world", "hello.greeting",
       actor_uuid: actor_uuid,
@@ -221,7 +207,7 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
             </div>
             <div>
               <p class="text-xs font-semibold text-base-content/60 uppercase mb-1">
-                {Gettext.gettext(PhoenixKitWeb.Gettext, "Custom display")}
+                {gettext("Custom display")}
               </p>
               <pre phx-no-curly-interpolation class="bg-base-200 rounded-lg p-3 text-xs overflow-x-auto"><code>metadata: %{
       "notification_text" =&gt; "👋 Custom!",
@@ -240,14 +226,14 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
         <div class="card-body">
           <div class="flex items-center justify-between flex-wrap gap-2">
             <h2 class="card-title">
-              {Gettext.gettext(PhoenixKitWeb.Gettext, "Your recent notifications")}
+              {gettext("Your recent notifications")}
             </h2>
             <div class="flex gap-2">
-              <button class="btn btn-ghost btn-xs" phx-click="mark_all_seen" disabled={not @available}>
-                {Gettext.gettext(PhoenixKitWeb.Gettext, "Mark all seen")}
+              <button class="btn btn-ghost btn-xs" phx-click="mark_all_seen" phx-disable-with={gettext("Marking…")}>
+                {gettext("Mark all seen")}
               </button>
-              <button class="btn btn-ghost btn-xs" phx-click="dismiss_all" disabled={not @available}>
-                {Gettext.gettext(PhoenixKitWeb.Gettext, "Dismiss all")}
+              <button class="btn btn-ghost btn-xs" phx-click="dismiss_all" phx-disable-with={gettext("Dismissing…")}>
+                {gettext("Dismiss all")}
               </button>
             </div>
           </div>
@@ -257,9 +243,7 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
             icon="hero-bell-slash"
             class="py-6"
             title={
-              Gettext.gettext(
-                PhoenixKitWeb.Gettext,
-                "No notifications yet — hit \"Send a notification\" above."
+              gettext("No notifications yet — hit \"Send a notification\" above."
               )
             }
           />
@@ -269,17 +253,17 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
               <.icon name={n.icon} class="w-5 h-5 text-base-content/60 shrink-0" />
               <div class="flex flex-col min-w-0 flex-1">
                 <span class={["text-sm truncate", n.seen_at && "text-base-content/50"]}>{n.text}</span>
-                <span :if={not n.seen_at} class="text-xs text-primary">
-                  {Gettext.gettext(PhoenixKitWeb.Gettext, "unread")}
+                <span :if={is_nil(n.seen_at)} class="text-xs text-primary">
+                  {gettext("unread")}
                 </span>
               </div>
               <button
-                :if={not n.seen_at}
+                :if={is_nil(n.seen_at)}
                 class="btn btn-ghost btn-xs"
                 phx-click="mark_seen"
                 phx-value-uuid={n.uuid}
               >
-                {Gettext.gettext(PhoenixKitWeb.Gettext, "Seen")}
+                {gettext("Seen")}
               </button>
               <button class="btn btn-ghost btn-xs" phx-click="dismiss" phx-value-uuid={n.uuid}>
                 <.icon name="hero-x-mark" class="w-4 h-4" />
@@ -301,24 +285,29 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
       <div class="card bg-base-100 shadow">
         <div class="card-body">
           <h2 class="card-title">
-            {Gettext.gettext(PhoenixKitWeb.Gettext, "Declare your module's notification types")}
+            {gettext("Declare your module's notification types")}
           </h2>
           <p class="text-base-content/70">
-            {Gettext.gettext(
-              PhoenixKitWeb.Gettext,
-              "Implement the optional notification_types/0 callback on your module so its notifications show up as a toggle in each user's notification preferences. This module already does — see PhoenixKitHelloWorld.notification_types/0."
+            {gettext("Implement the optional notification_types/0 callback on your module so its notifications show up as a toggle in each user's notification preferences. With sub_types the base key is a master switch and each sub is its own toggle. This module already does — see PhoenixKitHelloWorld.notification_types/0."
             )}
           </p>
           <pre phx-no-curly-interpolation class="bg-base-200 rounded-lg p-3 text-xs overflow-x-auto"><code>@impl PhoenixKit.Module
     def notification_types do
       [%{key: "hello_world", label: "Hello World",
-         description: "Greetings from the Hello World module",
-         actions: ["hello.greeting", "hello.custom"], default: true}]
+         description: "Greetings and demos from the Hello World module",
+         # Fully split into sub_types, so the base claims no action itself.
+         actions: [], default: true,
+         sub_types: [
+           %{key: "greetings", label: "Greetings",
+             description: "Plain greetings from the demo",
+             actions: ["hello.greeting"], default: true},
+           %{key: "custom", label: "Custom demos",
+             description: "Custom-display demo notifications",
+             actions: ["hello.custom"], default: true}
+         ]}]
     end</code></pre>
           <p class="text-base-content/70 mt-2">
-            {Gettext.gettext(
-              PhoenixKitWeb.Gettext,
-              "To show the inbox bell in your layout, render the embeddable nested LiveView:"
+            {gettext("To show the inbox bell in your layout, render the embeddable nested LiveView:"
             )}
           </p>
           <pre phx-no-curly-interpolation class="bg-base-200 rounded-lg p-3 text-xs overflow-x-auto"><code>&lt;%= Phoenix.Component.live_render(@socket, PhoenixKitWeb.Live.NotificationsBell,
@@ -362,20 +351,36 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLive do
     end)
   end
 
-  # `log/3` never raises; the demo actor is a fixed uuid so the notification
-  # lands in YOUR inbox (a row is created only when target != actor).
+  # `log/3` never raises — it answers `{:ok, entry}` or `{:error, reason}`, and
+  # the caller decides what the user is told. The demo actor is a fixed uuid
+  # so the notification lands in YOUR inbox (a row is created only when
+  # target != actor).
   defp log_demo_activity(socket, action, metadata) do
-    uuid = socket.assigns[:user_uuid]
+    case socket.assigns[:user_uuid] do
+      uuid when is_binary(uuid) ->
+        PhoenixKit.Activity.log("hello_world", action,
+          actor_uuid: @demo_actor_uuid,
+          resource_type: "hello_world_greeting",
+          resource_uuid: Ecto.UUID.generate(),
+          target_uuid: uuid,
+          metadata: metadata
+        )
 
-    if is_binary(uuid) do
-      PhoenixKit.Activity.log("hello_world", action,
-        actor_uuid: @demo_actor_uuid,
-        resource_type: "greeting",
-        resource_uuid: Ecto.UUID.generate(),
-        target_uuid: uuid,
-        metadata: metadata
-      )
+      _ ->
+        {:error, :no_recipient}
     end
+  end
+
+  # Never report success the log did not confirm: branch on its result.
+  defp sent({:ok, _entry}, socket, message) do
+    {:noreply, socket |> put_flash(:info, message) |> refresh()}
+  end
+
+  defp sent({:error, reason}, socket, _message) do
+    Logger.warning("[HelloWorld] Demo notification not sent: #{inspect(reason)}")
+
+    {:noreply,
+     put_flash(socket, :error, gettext("Could not send the notification. Check the server logs."))}
   end
 
   defp with_user(socket, fun) do

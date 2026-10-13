@@ -1,16 +1,20 @@
-# Template scaffold — uncomment the stubs below when your module needs
-# multiple admin pages or public routes. Not wired up by default; enable
-# by uncommenting `route_module/0` in the main module.
+# Template scaffold — uncomment the stubs below when tabs with `live_view:`
+# are not expressive enough, or the module needs public routes. Not wired up
+# by default; enable by uncommenting `route_module/0` in the main module.
 
 defmodule PhoenixKitHelloWorld.Routes do
   @moduledoc """
   Route module for complex routing needs.
 
-  For simple modules with a single admin page, the `live_view` field in
-  `admin_tabs/0` is sufficient — PhoenixKit auto-generates the route.
+  The `live_view` field on each tab in `admin_tabs/0` is the default way to
+  route an admin page — PhoenixKit generates one route per tab, and the tab's
+  `path` may carry dynamic segments (`"hello-world/:id/edit"`), so list, form
+  and edit pages are all tabs (hidden ones set `visible: false` and
+  `parent:`). This module routes its four pages that way.
 
-  For modules with **multiple admin pages**, public-facing routes, or custom
-  controllers, implement this module and return it from `route_module/0`.
+  Implement this module, and return it from `route_module/0`, for what tabs
+  cannot express: public-facing routes, custom controllers, or many `live`
+  routes you do not want to enumerate as tabs.
 
   ## Available functions
 
@@ -23,14 +27,17 @@ defmodule PhoenixKitHelloWorld.Routes do
 
   ## When you need this
 
-  If your module has only one admin page, you DON'T need this — the `live_view`
-  field on your admin tab handles it automatically. Delete this file and set
-  `route_module/0` to `nil`.
+  If every page of your module is an admin LiveView, you DON'T need this —
+  give each page a tab with `live_view:`. Delete this file and leave
+  `route_module/0` at its `nil` default.
 
-  If your module has multiple admin pages (e.g., list + form + settings), you
-  MUST define all admin LiveView routes here. The `live_view` field on
-  `admin_tabs/0` only generates ONE route per tab — it can't handle sub-pages
-  like `/admin/your-module/new` or `/admin/your-module/:id/edit`.
+  Reach for it when you want localized and non-localized admin variants with
+  their own `:as` names, many admin routes without a tab each, or anything
+  that is not a `live` route. Tabs and a route module coexist, but never
+  register the same path both ways. `admin_routes/0` and
+  `admin_locale_routes/0` may contain only `live` declarations — controllers,
+  `forward`, nested `scope` and `pipe_through` go in `generate/1` or
+  `public_routes/1`.
 
   ## Route ordering warning
 
@@ -39,7 +46,7 @@ defmodule PhoenixKitHelloWorld.Routes do
   are placed early in the router and will intercept `/admin/*` paths, breaking
   the admin panel.
 
-  ## Example: multi-page admin module
+  ## Example: admin routes declared here instead of as tabs
 
       def admin_locale_routes do
         quote do
@@ -61,7 +68,8 @@ defmodule PhoenixKitHelloWorld.Routes do
   """
 
   # ── Admin routes ─────────────────────────────────────────────────────
-  # Uncomment and customize these if your module has multiple admin pages.
+  # Uncomment and customize these to declare admin routes here rather than as
+  # tabs with `live_view:`.
   # Both functions must define the same routes — one for localized paths
   # (with /:locale prefix) and one for non-localized paths.
   #

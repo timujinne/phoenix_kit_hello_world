@@ -18,10 +18,17 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
      page load — unlike a per-page inline `<script>`, which never executes
      when the page is reached through `navigate/2`.
   4. `PhoenixKit.Activity` is called directly — the core floor carries it, so
-     no `Code.ensure_loaded?/1` guard; a failing read leaves the page as it was.
+     no `Code.ensure_loaded?/1` guard; a failing read is logged and leaves the
+     page as it was.
+  5. The action filter's options are the module's own action vocabulary, a
+     compile-time list — a module knows which actions it logs. Core's
+     `PhoenixKit.Activity.list_action_types/0` is site-wide (every module's
+     actions), and deriving the list by reading the module's rows costs a
+     query that grows with the log.
   """
 
   use Phoenix.LiveView
+  use Gettext, backend: PhoenixKitHelloWorld.Gettext
 
   require Logger
 
@@ -35,17 +42,26 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
 
   @per_page 20
 
+  # Every action this module logs (`Web.HelloLive`, `Web.NotificationsLive`).
+  # Add an action there and it is added here, or it cannot be filtered on;
+  # `events_live_test.exs` drives the real senders and fails on a missing one.
+  @action_types ~w(
+    hello.custom
+    hello.greeting
+    hello_world.demo_event
+    hello_world.moderation_event
+  )
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      socket
      |> assign(
-       page_title: Gettext.gettext(PhoenixKitWeb.Gettext, "Events"),
-       page_section: Gettext.gettext(PhoenixKitWeb.Gettext, "Hello World"),
+       page_title: gettext("Events"),
+       page_section: gettext("Hello World"),
        page_section_path: Paths.index(),
        page_subtitle:
-         Gettext.gettext(
-           PhoenixKitWeb.Gettext,
+         gettext(
            "Events logged by the Hello World module. Click the \"Log demo event\" button on the Overview page to add entries."
          ),
        total: 0,
@@ -54,7 +70,7 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
        has_more: false,
        loading: false,
        filter_action: nil,
-       action_types: []
+       action_types: @action_types
      )
      |> stream(:entries, [], dom_id: &"entry-#{&1.uuid}")}
   end
@@ -66,7 +82,6 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
         socket
         |> apply_params(params)
         |> assign(:page, 1)
-        |> load_filter_options()
         |> reset_and_load()
       else
         socket
@@ -117,16 +132,11 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
 
   # ── Private ──────────────────────────────────────────────────────
 
+  # The URL is client input: an action outside the module's vocabulary is
+  # treated as no filter rather than passed to the query.
   defp apply_params(socket, params) do
-    assign(socket, :filter_action, blank_to_nil(params["action"]))
-  end
-
-  defp load_filter_options(socket) do
-    all = PhoenixKit.Activity.list(module: "hello_world", per_page: 1000, preload: [])
-    action_types = all.entries |> Enum.map(& &1.action) |> Enum.uniq() |> Enum.sort()
-    assign(socket, action_types: action_types)
-  rescue
-    _ -> socket
+    action = blank_to_nil(params["action"])
+    assign(socket, :filter_action, if(action in @action_types, do: action))
   end
 
   defp reset_and_load(socket) do
@@ -159,7 +169,16 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
       loading: false
     )
   rescue
-    _ -> assign(socket, loading: false)
+    # A read that fails (database unavailable, schema behind) must not take
+    # the page down — but it must leave a trace, or an empty feed looks like
+    # "no events" forever.
+    e ->
+      Logger.warning(
+        "[HelloWorld] Loading events page #{socket.assigns.page} " <>
+          "(action: #{inspect(socket.assigns.filter_action)}) failed: #{Exception.message(e)}"
+      )
+
+      assign(socket, loading: false)
   end
 
   defp blank_to_nil(nil), do: nil
@@ -213,16 +232,16 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
 
     cond do
       diff < 60 ->
-        Gettext.gettext(PhoenixKitWeb.Gettext, "just now")
+        gettext("just now")
 
       diff < 3600 ->
-        Gettext.gettext(PhoenixKitWeb.Gettext, "%{count}m ago", count: div(diff, 60))
+        gettext("%{count}m ago", count: div(diff, 60))
 
       diff < 86_400 ->
-        Gettext.gettext(PhoenixKitWeb.Gettext, "%{count}h ago", count: div(diff, 3600))
+        gettext("%{count}h ago", count: div(diff, 3600))
 
       diff < 604_800 ->
-        Gettext.gettext(PhoenixKitWeb.Gettext, "%{count}d ago", count: div(diff, 86_400))
+        gettext("%{count}d ago", count: div(diff, 86_400))
 
       true ->
         Calendar.strftime(datetime, "%b %d, %Y")
@@ -237,25 +256,30 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
     <div class="flex flex-col px-4 py-6 gap-4">
       <%!-- Filters --%>
       <div class="bg-base-200 rounded-lg p-3">
-        <.form for={%{}} phx-change="filter" class="flex flex-wrap gap-3 items-end">
+        <.form
+          for={%{}}
+          id="events-filter-form"
+          phx-change="filter"
+          class="flex flex-wrap gap-3 items-end"
+        >
           <div class="w-56">
             <.select
               id="filter-action"
               name="filter[action]"
-              label={Gettext.gettext(PhoenixKitWeb.Gettext, "Action")}
+              label={gettext("Action")}
               value={@filter_action}
               options={@action_types}
-              prompt={Gettext.gettext(PhoenixKitWeb.Gettext, "All Actions")}
+              prompt={gettext("All Actions")}
               class="select-sm"
             />
           </div>
 
           <button type="button" phx-click="clear_filters" class="btn btn-ghost btn-sm">
-            {Gettext.gettext(PhoenixKitWeb.Gettext, "Clear")}
+            {gettext("Clear")}
           </button>
 
           <div class="ml-auto text-sm text-base-content/60">
-            {Gettext.gettext(PhoenixKitWeb.Gettext, "%{count} events", count: @total)}
+            {ngettext("%{count} event", "%{count} events", @total)}
           </div>
         </.form>
       </div>
@@ -302,7 +326,7 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
               <%= if entry.actor do %>
                 {entry.actor.email}
               <% else %>
-                <span class="text-base-content/40">{Gettext.gettext(PhoenixKitWeb.Gettext, "System")}</span>
+                <span class="text-base-content/40">{gettext("System")}</span>
               <% end %>
             </div>
 
@@ -315,7 +339,7 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
             <.link
               navigate={Routes.path("/admin/activity/#{entry.uuid}")}
               class="btn btn-ghost btn-xs btn-square"
-              title={Gettext.gettext(PhoenixKitWeb.Gettext, "View details")}
+              title={gettext("View details")}
             >
               <.icon name="hero-arrow-top-right-on-square" class="w-3.5 h-3.5" />
             </.link>
@@ -323,17 +347,17 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
         </div>
       </div>
 
-      <%!-- Empty state --%>
+      <%!-- Empty states: nothing logged yet vs. nothing matching the filter --%>
       <.empty_state
-        :if={@total == 0 and not @loading}
+        :if={@total == 0 and not @loading and is_nil(@filter_action)}
         icon="hero-bell-slash"
-        title={Gettext.gettext(PhoenixKitWeb.Gettext, "No events recorded yet")}
-        description={
-          Gettext.gettext(
-            PhoenixKitWeb.Gettext,
-            "Head back to the Overview page and click \"Log demo event\"."
-          )
-        }
+        title={gettext("No events recorded yet")}
+        description={gettext("Head back to the Overview page and click \"Log demo event\".")}
+      />
+      <.empty_state
+        :if={@total == 0 and not @loading and not is_nil(@filter_action)}
+        icon="hero-funnel"
+        title={gettext("No events match this filter.")}
       />
 
       <%!-- Auto-load on scroll (core's InfiniteScroll hook) + manual fallback.
@@ -344,7 +368,7 @@ defmodule PhoenixKitHelloWorld.Web.EventsLive do
         loaded={@loaded}
         total={@total}
         infinite
-        noun_plural={Gettext.gettext(PhoenixKitWeb.Gettext, "events")}
+        noun_plural={gettext("events")}
       />
     </div>
     """

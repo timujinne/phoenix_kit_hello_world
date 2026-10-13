@@ -4,10 +4,10 @@ Guidance for AI agents working on `phoenix_kit_hello_world`.
 
 ## Overview
 
-The PhoenixKit plugin-module template and showcase: a working example of the `PhoenixKit.Module` behaviour that a parent Phoenix app auto-discovers, kept deliberately minimal so it can be copied as the starting point for a real module. It ships four admin pages that demonstrate the most common patterns — **Overview** (module info plus a "Log demo event" button showing the canonical activity-logging pattern), **Events** (infinite-scroll activity feed filtered to `module: "hello_world"`), **Notifications** (sending, customizing and managing notifications), and **Components** (live showcase of core components with copy-paste snippets) — plus a reference dashboard widget and a reference project extension.
+The PhoenixKit plugin-module template and showcase: a working example of the `PhoenixKit.Module` behaviour that a parent Phoenix app auto-discovers, kept deliberately minimal so it can be copied as the starting point for a real module. It ships four admin pages that demonstrate the most common patterns — **Overview** (module info plus a "Log demo event" button showing the canonical activity-logging pattern, and a "Log moderation event" button gated on a sub-permission), **Events** (infinite-scroll activity feed filtered to `module: "hello_world"`), **Notifications** (sending, customizing and managing notifications), and **Components** (live showcase of core components with copy-paste snippets) — plus a reference dashboard widget and a reference project extension.
 
-- **Depends on:** `phoenix_kit` `>= 2.38.0 and < 3.0.0` (Hex) and `phoenix_live_view` `~> 1.1`. No sibling `phoenix_kit_*` deps. `rustler` is pulled as an optional dep so MDEx's Rust NIF can build from source on OTP versions that ship no compatible precompiled NIF (the same escape hatch core carries).
-- **Consumed by:** nothing. It is the copy-from reference; other modules copy its shapes rather than depend on it.
+- **Depends on:** `phoenix_kit` `>= 2.38.0 and < 3.0.0` (Hex), `phoenix_live_view` `~> 1.1` and `gettext` `~> 1.0` (the module's own backend). No sibling `phoenix_kit_*` deps. `rustler` is pulled as an optional dep so MDEx's Rust NIF can build from source on OTP versions that ship no compatible precompiled NIF (the same escape hatch core carries).
+- **Consumed by:** no package depends on it — it is the copy-from reference. At runtime `phoenix_kit_dashboards` discovers `phoenix_kit_widgets/0` and `phoenix_kit_projects` discovers `phoenix_kit_project_extensions/0`, both duck-typed, and core consumes `resource_links/0` and `notification_types/0`.
 - **Admin surface:** parent tab `/admin/hello-world` plus four subtabs — Overview (same path), Events (`/events`), Components (`/components`), Notifications (`/notifications`). All in the `:admin_modules` sidebar group at priorities 640–644.
 - **Module key** `"hello_world"`; settings prefix `hello_world_` (one key today: `hello_world_enabled`).
 
@@ -20,6 +20,7 @@ Its job is to demonstrate the minimum viable shape of a PhoenixKit module. It de
 - **No Ecto schemas.** No DB-backed data of its own. The copyable all-comments schema template (UUIDv7 PK, `use PhoenixKit.SchemaPrefix`, naming and timestamp conventions) is `lib/phoenix_kit_hello_world/schemas/example_item.ex`, guarded by `test/schema_prefix_conformance_test.exs` — copy both when adding a first schema.
 - **No migrations.** A template has no business creating a table in every host that installs it, so `migration_module/0` stays at its `nil` default. See "Database & migrations".
 - **No JS hooks.** `js_sources/0` is unimplemented (default `[]`); every interactive page uses a core hook. See the JS bullet under Conventions before adding one.
+- **No dashboard slot and no viewer context.** `phoenix_kit_dashboard_slots/0` and `phoenix_kit_dashboard_viewer_context/2` describe a module that owns records; this one owns none, and a slot would add a sidebar sub-tab to every copy. The main module carries a comment block pointing at `phoenix_kit_projects`, the reference for both.
 - **No actor helper of its own.** `HelloLive` passes core's `PhoenixKitWeb.Actor.opts(socket)` straight into `PhoenixKit.Activity.log/3`; a module whose context functions accept `opts \\ []` threads the same list through them.
 
 Extending the template into a real module usually adds, in this order: context module → schemas (plus the migration coordinator that creates their tables) → `Errors` dispatcher. `phoenix_kit_locations` is the smallest end-to-end reference of all three.
@@ -54,11 +55,16 @@ Repo-local aliases:
 ## Conventions
 
 - **Module key** is lowercase with underscores (`"hello_world"`) and identical in `module_key/0`, `permission_metadata/0`'s `:key`, each tab's `:permission`, and the settings prefix. Core validates the permission key against `module_key/0` at startup.
+- **The core floor is what the code may use.** Every core function, component, attribute and slot called here exists at the `phoenix_kit` floor in `mix.exs`; `mix.lock` resolves that floor, so the suite proves it. Using anything newer means raising the floor in the same change — an undeclared attribute or slot crashes a host on an older core at render, not at compile.
 - **Tab ids** are atoms prefixed `:admin_` and unique across every installed module (`:admin_hello_world`, `:admin_hello_world_events`, …). **URL path segments use hyphens, never underscores** (`hello-world`), and a test asserts it.
 - **Never hardcode a path.** Every `href`, `navigate`, `patch` and `redirect` goes through `PhoenixKitHelloWorld.Paths`, which wraps `PhoenixKit.Utils.Routes.path/1` so the host's URL prefix and locale segment are applied. A relative path resolves differently depending on the current URL and breaks silently.
 - **Routing** is `live_view:` on each tab (this module) or a `route_module/0` declaring `admin_routes/0` + `admin_locale_routes/0`; the two coexist, but never register the same path both ways. Never hand-register a plugin LiveView route in the host app's `router.ex`. See "Routing" below.
 - **LiveView macro.** `hello_live.ex` and `components_live.ex` use `use PhoenixKitWeb, :live_view`, which imports core components, Gettext, layout config and HTML helpers — the recommended default. `events_live.ex`, `notifications_live.ex` and `project_hello_tab_live.ex` use `use Phoenix.LiveView` directly (as locations, sync, catalogue and newsletters do) and therefore `import` each core component explicitly. The rule is the same either way: reach for the core component, not raw HTML; only the import mechanics differ. Admin LiveViews never wrap their template in `LayoutWrapper` — core applies the admin layout inside `live_session :phoenix_kit_admin`.
-- **Gettext** is core's backend: `Gettext.gettext(PhoenixKitWeb.Gettext, "…")`. This module ships no `priv/gettext` and no backend of its own; user-facing strings (including `page_title`, `page_subtitle`, flashes, button labels and empty-state copy) are wrapped, while code samples inside `<pre>` blocks are not.
+- **Gettext** is the module's own backend, `PhoenixKitHelloWorld.Gettext`, with its catalogue in `priv/gettext` (`default.pot` plus `en`, `et`, `ru`). Every file adds `use Gettext, backend: PhoenixKitHelloWorld.Gettext` — **after** `use PhoenixKitWeb, :live_view` where that is used, because the later `use` decides which backend the macros call — and uses the macro form with a literal msgid (`gettext("…")`, `ngettext/3`). Never the runtime form `Gettext.gettext(Backend, "…")`: the extractor cannot see it, so the string enters no catalogue and renders in English everywhere. User-facing strings (including `page_title`, `page_subtitle`, flashes, button labels, `phx-disable-with` text and empty-state copy) are wrapped; code samples inside `<pre>` blocks and sample data are not.
+  - **One sentence is one msgid**, placeholders included. A link or `<code>` span inside a sentence goes through `HelloLive`'s `<.inline>`, never translated fragments around the markup.
+  - **Labels declared as data** — tab labels and the permission and sub-permission labels — carry `gettext_backend:` / `gettext_domain:` and are pinned for the extractor by `translatable_labels/0` (`dgettext_noop/2`). Add or rename one and that list changes with it; a test compares the two.
+  - **Catalog strings another package renders** (widget names and settings labels, extension names and flag labels) are translated through that package's catalogue, so they stay plain strings here.
+  - After adding or changing a string: `mix gettext.extract --merge`, fill the new `msgstr` in `et` and `ru` (`en` stays empty), and clear every `#, fuzzy` the merge produced. `test/phoenix_kit_hello_world_test.exs` asks the backend for every msgid in `default.pot` in both locales.
 - **The admin header breadcrumb is built from four assigns and nothing else.** `page_section` (+ `page_section_path`) is the module — its admin tab label, linking to its landing page; `page_crumbs` is every level between the module and this page; `page_title` is this page only; `page_subtitle` is one optional sentence. The landing page sets only the title (the module is the title there); every sub-page carries the module as its section. A title never carries its own trail (`"Hello World — Events"`) and never a module prefix — the bar draws the separators. Rules and per-page shapes: core's `dev_docs/guides/2026-09-25-admin-header-trail.md`.
 - **JS hooks ship as a prebuilt bundle declared by `js_sources/0`**, never registered from an inline `<script>`. Prefer a core hook first — core's hooks are in the host's `LiveSocket` at construction, so they work however the page is reached (`<.load_more infinite>`/`InfiniteScroll` is the one this module uses). When core has none, ship your own `priv/static/assets/<app>.js` and return `[%{app: :your_app, file: "static/assets/your_app.js", global: "YourAppHooks"}]` from `js_sources/0`; the `:phoenix_kit_js_sources` compiler folds the global into `window.PhoenixKitHooks`. The `:global` must be unique (the compiler fails on a collision) and hook names inside the bundle must be namespaced, because the final fold is last-write-wins on hook names and would silently override a core hook. An inline `<script>` in `render/1` is the broken pattern: morphdom does not execute inserted script tags, so the hook binds to nothing after `navigate/2` with no error.
 - **`enabled?/0` must never raise.** It reads a DB-backed setting, so it `rescue`s any exception *and* catches `:exit` (pool checkout can exit around startup or after a test sandbox owner stops), returning `false` from every branch so callers need no startup-ordering special cases.
@@ -73,7 +79,7 @@ Repo-local aliases:
 - **Building the test schema with `Ecto.Migrator.run(TestRepo, [{0, PhoenixKit.Migration}], :up, all: true)`** goes stale in silence: once `0` sits in `schema_migrations` the inner runner never re-runs, so newly shipped core versions stop applying and tests fail against a schema nobody notices is old. Fix: `PhoenixKit.Migration.ensure_current/2`, which `test_helper.exs` already calls.
 - **Integration tests hang and fail as pool timeouts that look like flakes** when the Postgres role does not exist. `config/test.exs` defaults `PGUSER` to `postgres`; on an install whose superuser role is your login name, export `PGUSER=<role>` (and `PGDATABASE`/`PGPOOL` for a shared instance).
 - **Flash assertions after a click event return nothing** unless the test layout renders flashes. `PhoenixKitHelloWorld.Test.Layouts.app/1` renders them deliberately — do not simplify it away.
-- **`ProjectHelloTabLive` must stay off-router-mountable**: the projects hub renders it via `live_render`, so adding a `handle_params/3` breaks the embed. `test/phoenix_kit_hello_world/project_extension_test.exs` pins this.
+- **`ProjectHelloTabLive` must stay off-router-mountable**: the projects hub renders it via `live_render`, so adding a `handle_params/3` breaks the embed. `test/phoenix_kit_hello_world/project_extension_test.exs` mounts it that way.
 
 ### Routing
 
@@ -109,12 +115,16 @@ Discovery is automatic: `use PhoenixKit.Module` persists a `@phoenix_kit_module`
 - **One header, from `page_title`.** Set `page_title` (and optionally `page_subtitle`) in `mount/3`; the admin layout renders them in the page header. Do **not** also render an in-body `<h1>`/`<h2>` for the page — that puts two titles on screen, usually with different wording. Card titles (`<h2 class="card-title">`) inside a card are not page headers and are fine.
 - **Prefer core components over hand-rolled markup.** `<.table_default>` over a raw `<table>`, `<.pagination>` / `<.load_more>` over hand-built join buttons, `<.empty_state>` over a bespoke "nothing here" panel, and the core form primitives over raw inputs. `ComponentsLive` pairs each raw daisyUI section with its core counterpart after the divider so the difference is visible.
 - **Wrap user-facing strings in gettext**, including `page_title`, `page_subtitle`, flash messages, button labels and empty-state copy. Code samples inside `<pre>` blocks are not user-facing copy; leave them alone.
+- **Every form that sends `phx-change` or `phx-submit` has a unique `id`.** Without one LiveView cannot recover the form after a reconnect, and the test suite warns on every render.
+- **An event payload is client input.** Handlers validate a sort field, tab id, row id or list of selected ids against a server-side whitelist before using it, and re-check a permission the template already used to hide the control.
 
 ### Core form primitives
 
 `use PhoenixKitWeb, :live_view` auto-imports `<.input>`, `<.select>`, `<.textarea>`, `<.checkbox>` and `<.simple_form>` from `PhoenixKitWeb.Components.Core.{Input, Select, Textarea, Checkbox, SimpleForm}`. Use these in every form rather than raw HTML — they handle label wiring, error rendering via `phx-feedback-for`, and daisyUI styling (including daisyUI 5's `<label class="select">` wrapper). `ComponentsLive`'s `form_helpers_section/1` demonstrates the pattern end to end. LiveViews that `use Phoenix.LiveView` directly import what they need explicitly:
 
 ```elixir
+use Gettext, backend: PhoenixKitHelloWorld.Gettext
+
 import PhoenixKitWeb.Components.Core.EmptyState, only: [empty_state: 1]
 import PhoenixKitWeb.Components.Core.Icon, only: [icon: 1]
 import PhoenixKitWeb.Components.Core.Pagination, only: [load_more: 1]
@@ -153,6 +163,8 @@ end
 - **Call `PhoenixKit.Activity.log/3` directly** — module key, action, options. It never raises: a failed insert, a raise, an exit or a throw is logged there and returned as `{:error, _}`, so no guard or rescue of your own.
 - **Read the actor with `PhoenixKitWeb.Actor`** (`opts/1` for an options list, `uuid/1` for the bare uuid) — the scope first, then the bare current user — never from assigns by hand.
 - **Action format** is `"resource.verb"` (`"hello_world.demo_event"`).
+- **Branch on the result.** `log/3` answers `{:ok, entry}` or `{:error, reason}`; a success flash is shown only for `{:ok, _}`.
+- **An action the module logs is listed in `EventsLive`'s `@action_types`**, or the Events filter cannot select it. `events_live_test.exs` drives the real senders and fails on a missing one.
 - **Mode** is `"manual"` for user-triggered and `"auto"` for system or background work.
 
 ## Architecture
@@ -162,6 +174,7 @@ A `PhoenixKit.Module` implementation, discovered from its `.beam` marker at host
 ```
 lib/phoenix_kit_hello_world.ex                    # PhoenixKit.Module implementation + widget/extension catalogs
 lib/phoenix_kit_hello_world/
+├── gettext.ex                                    # The module's own Gettext backend
 ├── paths.ex                                      # Path helpers over PhoenixKit.Utils.Routes.path/1
 ├── routes.ex                                     # Route-module scaffold (commented out by default)
 ├── migrations.ex                                 # All-comments migration-coordinator template (compiles to nothing)
@@ -174,44 +187,69 @@ lib/phoenix_kit_hello_world/
     ├── hello_widget.ex                           # Reference dashboard widget (LiveComponent)
     └── project_hello_tab_live.ex                 # Reference project-extension tab
 lib/mix/tasks/phoenix_kit_hello_world.audit_migrations.ex   # Read-only audit of installed coordinators
+priv/gettext/                                     # default.pot + en, et, ru catalogues
 ```
 
 Key modules:
 
-- **`PhoenixKitHelloWorld`** — the behaviour implementation. Required callbacks (`module_key/0`, `module_name/0`, `enabled?/0`, `enable_system/0`, `disable_system/0`) plus `version/0`, `permission_metadata/0`, `admin_tabs/0`, `css_sources/0`, `notification_types/0`, `resolve_comment_resources/1`, and the two duck-typed catalogs below. Registers five tabs: the parent plus four subtabs.
+- **`PhoenixKitHelloWorld`** — the behaviour implementation. Required callbacks (`module_key/0`, `module_name/0`, `enabled?/0`, `enable_system/0`, `disable_system/0`) plus `version/0`, `permission_metadata/0`, `admin_tabs/0`, `css_sources/0`, `notification_types/0`, `resource_links/0` (with `resolve_comment_resources/1`, the rich resolver a `resource_links/0` entry can point at), `translatable_labels/0`, `moderate_permission/0`, and the two duck-typed catalogs below. Registers five tabs: the parent plus four subtabs. Its moduledoc tables every `PhoenixKit.Module` callback at the core floor.
 - **`PhoenixKitHelloWorld.Paths`** — `index/0`, `events/0`, `components/0`, `notifications/0`.
-- **`Web.HelloLive`** — landing page; Scope API demonstration and the activity-logging button.
-- **`Web.EventsLive`** — activity feed using core's `<.load_more infinite>` and `InfiniteScroll` hook (no page-local JS), action filtering via core's `<.select>`. Near-identical to `phoenix_kit_catalogue`'s events tab; this is the universal pattern.
+- **`Web.HelloLive`** — landing page; Scope API demonstration, the activity-logging button (base permission) and the moderation button (sub-permission), and `<.inline>` for sentences with markup inside.
+- **`Web.EventsLive`** — activity feed using core's `<.load_more infinite>` and `InfiniteScroll` hook (no page-local JS), action filtering via core's `<.select>` over the module's own compile-time action list. Near-identical to `phoenix_kit_catalogue`'s events tab; this is the universal pattern.
 - **`Web.NotificationsLive`** — sends plain and custom-display notifications, reads unread counts, marks seen, dismisses, and subscribes to live updates via `PhoenixKit.Notifications.Events.subscribe/1`.
-- **`Web.ComponentsLive`** — showcase of core components with copy-paste snippets; `render/1` is a flat dispatch over per-section function components (see Feature notes).
+- **`Web.ComponentsLive`** — showcase of core components with copy-paste snippets; `render/1` is a flat dispatch over per-section function components (see Feature notes). Ten raw daisyUI sections, then the core components: `button`, `status_badge`, `accordion`, `nav_tabs`, `stat_card`, formatters, `simple_form` and the inputs, `form_section` + `form_actions`, `modal` (drawer placement, unsaved-input guard) and `confirm_modal`, `popover_panel`, `table_default` with `search_toolbar` / `sort_header_cell` / `table_row_menu`, bulk selection (client-owned `bulk_select_scope` and server-owned `bulk_actions_bar`), `search_picker`, `pagination`, `empty_state`, `draggable_list`.
 
-**Data model:** none. No schemas, no tables, no PubSub topics of its own — it only subscribes to core's notification topic.
+**Data model:** none. No schemas, no tables, no PubSub topics of its own — it only subscribes to core's notification topic. It logs two resource types: `"hello_world"` (the demo events, no `resource_uuid`) and `"hello_world_greeting"` (the demo notifications), the latter linked by `resource_links/0`.
 
 **Settings keys:** `hello_world_enabled` (boolean, written through `Settings.update_boolean_setting_with_module/3` so core records which module owns the key).
 
-**Permissions:** one key, `"hello_world"`, declared by `permission_metadata/0` and carried as `:permission` on every tab; checked with `Scope.has_module_access?(scope, "hello_world")`. No sub-permissions.
+**Permissions:** the base key `"hello_world"`, declared by `permission_metadata/0` and carried as `:permission` on every tab, checked with `Scope.has_module_access?(scope, "hello_world")` — it means "may enter the module". One sub-permission, declared there as `"moderate"` and stored and checked as `"hello_world.moderate"` (`PhoenixKitHelloWorld.moderate_permission/0`): an additive grant the module checks itself with `Scope.can?/2`, which also requires the base key and the module being enabled. It gates `HelloLive`'s "Log moderation event" button — hidden without the grant, and the handler checks again.
 
-**Assigns core injects into admin LiveViews:** `@phoenix_kit_current_scope`, `@phoenix_kit_current_user`, `@current_locale`, `@url_path`.
+**Assigns core injects into admin LiveViews:** `@phoenix_kit_current_scope`, `@phoenix_kit_current_user`, `@current_locale`, `@url_path`. Embedded surfaces (the project tab, the widget) get none of these: they read their session or assigns.
 
 ### Reference dashboard widget
 
-`Web.HelloWidget` plus the `phoenix_kit_widgets/0` definition in the main module are the copy-from reference for contributing widgets to `phoenix_kit_dashboards`. The contract is **duck-typed and one-way**: a zero-arity function returning plain maps, no behaviour, no `@impl`, and no dependency on the dashboards package — its Registry finds the function at runtime. The single definition uses every field (key, name/description/icon, `module_key` gating, component, category, default/min sizes, `refresh_interval`, three `views` each with its own `min_size`, and a `settings_schema` exercising every field type including both select-option shapes). The component demonstrates the render side: the `settings` / `view` / `size` / `scope` assigns, live-refresh state that survives host ticks, scope-driven personalization, compact single-row rendering, and a `"contract"` debug view that prints the received assigns verbatim. **A widget must never crash the host dashboard** — read every assign defensively. `hello_widget_test.exs` is pure `render_component` with no DB, which is also why this widget skips the in-component `enabled?/0` guard that data-querying widgets need.
+`Web.HelloWidget` plus the `phoenix_kit_widgets/0` definition in the main module are the copy-from reference for contributing widgets to `phoenix_kit_dashboards`. The contract is **duck-typed and one-way**: a zero-arity function returning plain maps, no behaviour, no `@impl`, and no dependency on the dashboards package — its Registry finds the function at runtime.
+
+The single definition uses every field the dashboards normalizer reads: `key`, `name` / `description` / `icon`, `module_key` gating, `component`, `category`, `default_size` / `min_size` (lattice units), `refresh_interval`, three `views` each with its own `min_size`, and a `settings_schema` exercising every field type, both select-option shapes and a `context:` field. `max_size` is left out because the host ignores it. A test asserts the key set against that list.
+
+| Assign the host passes | Meaning |
+|---|---|
+| `settings` | The instance's settings, with any bound `context:` field already resolved to an id |
+| `view` | The selected view key, or `nil` |
+| `size` | `%{w:, h:}` in lattice cells |
+| `scope` | The viewer's scope |
+| `context` | `%{kind => id}` for what the page is about; `%{}` on a context-free dashboard |
+
+Rules the component follows:
+
+- **A widget must never crash the host dashboard** — every assign is read defensively, including an absent `context` from an older host.
+- **`min_size` is a recommendation.** A user may override it per instance down to 1×1, so the widget renders compact below its own declared minimum height. The component's `@min_height` and the catalog's `min_size.h` change together.
+- **A `:text` setting is rich content** from the host's editor. It is rendered through core's `<.markdown>`, which sanitises; never `raw/1`.
+- **The `context:` field borrows `"projects.project"`**, a kind `phoenix_kit_projects` owns, because this module owns no records. A module that owns the kind also supplies the field's `options:` and `phoenix_kit_dashboard_viewer_context/2`.
+- `hello_widget_test.exs` is pure `render_component` with no DB, which is also why this widget skips the in-component `enabled?/0` guard that data-querying widgets need.
 
 ### Reference project extension
 
-`phoenix_kit_project_extensions/0` plus `Web.ProjectHelloTabLive` are the copy-from reference for plugging a module into individual projects in the `phoenix_kit_projects` hub. Same duck-typed one-way shape as the widget catalog. The catalog entry exercises every contract field: `key`, `name`/`description`/`icon`, `module_key` gating, `tabs` (each `%{key, label, icon, lv}`), `config_schema` (writes are whitelisted to these keys), `feature_flags` (with `requires`), `permission_actions`, `notification_types`, `on_enable`/`on_disable` (`{module, function}` arity-2, best-effort — failures log and never abort), and `default_enabled` (kept `false` so a demo tab never appears unbidden).
+`phoenix_kit_project_extensions/0` plus `Web.ProjectHelloTabLive` are the copy-from reference for plugging a module into individual projects in the `phoenix_kit_projects` hub. Same duck-typed one-way shape as the widget catalog. The catalog entry names every field the hub's normalizer reads: `key`, `name` / `description` / `icon`, `category`, `module_key` gating, `permission`, `tabs` (each `%{key, label, icon, lv}`; a tab key is a URL segment and may not reuse one of the project page's own), `config_schema` (writes are whitelisted to these keys), `feature_flags` (with `requires`), `permission_actions`, `notification_types`, `on_enable` / `on_disable` (`{module, function}` arity-2, best-effort — failures log and never abort), `api` (an `Extensions.ApiProvider` module, `nil` here), and `default_enabled` (kept `false` so a demo tab never appears unbidden). `data_retention` is not a field a provider sets: the hub fixes it to `:keep`. A test asserts the key set.
 
 The hub renders the tab LV with `live_render` and this session contract:
 
 | Session key | Meaning |
 |---|---|
-| `project_uuid` | The project being viewed |
+| `project_uuid` | The project being viewed. The only required key |
 | `ext_key` | The extension entry's `key` |
+| `instance_key` | Which enablement row this render is; `"default"` |
 | `config` | The per-project values collected by `config_schema` |
-| `current_user_uuid` | Viewer identity (identity only — authorize separately) |
+| `can_write` | Boolean the host resolved: may the viewer perform the extension's write action on this project. The tab's only write authorization |
+| `current_user_uuid` | Viewer identity as a string uuid (identity only — never authorization) |
 | `locale` | Gettext locale to set on mount, when present |
+| `wrapper_class` | Class for the tab's outermost element; the hub passes `""` |
+| `mode`, `pubsub_topic`, `frame_ref` | The hub's emit contract: `mode` is `"navigate"`, `"emit"` or `"popup"`; a tab that never navigates or opens a dialog ignores all three |
+| `host_paths` | `%{"new_task" => path}` — the hub's own pages, so a tab can link to them without naming its routes |
 
-The tab LV mounts **off-router**, so it must not define `handle_params/3`.
+- **`can_write` comes from `permission_actions`.** The first action other than `:view` (here `:greet`) is the extension's write action; the hub resolves it for the viewer and passes the answer. A tab gates every mutating control *and* its handler on it, and treats anything but `true` as read-only.
+- The tab LV mounts **off-router**, so it must not define `handle_params/3`, has no `@phoenix_kit_current_scope`, and sets its own Gettext locale from the session.
 
 ## Database & migrations
 
@@ -274,9 +312,9 @@ Never write a conditional "module absent → drop" migration: it is nondetermini
 
 ## Testing
 
-The suite owns its own database, `phoenix_kit_hello_world_test`. Unit tests always run; DB-backed tests carry the `:integration` tag and `test_helper.exs` excludes them automatically when Postgres is unreachable or the database is missing (it probes with `psql -lqt`, then tries a real connection).
+The suite owns its own database, `phoenix_kit_hello_world_test`. Unit tests always run; DB-backed tests carry the `:integration` tag and `test_helper.exs` excludes them automatically when Postgres is unreachable or the database is missing (one classified connection attempt through core's `PhoenixKit.TestSupport.PostgresPreflight`, with the repo's own credentials and transport, which prints the reason when it fails).
 
-`test_helper.exs` builds the schema by calling `PhoenixKit.Migration.ensure_current(Repo, log: false)` — core's versioned migrations, applied on every boot with a fresh version number on purpose, so schema drift is impossible by construction. It also starts `PhoenixKit.PubSub.Manager` and `PhoenixKit.ModuleRegistry`, forces core's URL-prefix cache to `"/"` via `:persistent_term` so `Paths.*` produce URLs the test router matches (admin paths always carry the default `en` locale prefix, so the router scope is `/en/admin/hello-world`), and starts the test Endpoint only when the DB is available. Support modules are loaded with explicit `Code.require_file/2` calls, because Elixir 1.19's `mix test` no longer auto-loads modules from the test `:elixirc_paths`.
+`test_helper.exs` builds the schema by calling `PhoenixKit.Migration.ensure_current(Repo, log: false)` — core's versioned migrations, applied on every boot with a fresh version number on purpose, so schema drift is impossible by construction. It also starts `PhoenixKit.PubSub.Manager` and `PhoenixKit.ModuleRegistry`, forces core's URL-prefix cache to `"/"` via `:persistent_term` so `Paths.*` produce URLs the test router matches (admin paths always carry the default `en` locale prefix, so the router scope is `/en/admin/hello-world`), and starts the test Endpoint only when the DB is available. Support modules in `test/support` are compiled by `elixirc_paths(:test)` and need no `Code.require_file/2` in the helper — requiring them as well compiles each twice and prints a "redefining module" warning per file.
 
 `config/test.exs` wires `config :phoenix_kit, repo: PhoenixKitHelloWorld.Test.Repo`. Without that line every call through `PhoenixKit.RepoHelper` crashes with "No repository configured". It also honours `PGUSER`, `PGPASSWORD`, `PGHOST`, `PGDATABASE` (point the suite at a database the role may not `CREATE`), `PGPOOL` (bound the pool on a shared instance; the default is `schedulers_online() * 2`) and `MIX_TEST_PARTITION`.
 
@@ -286,12 +324,16 @@ Support modules:
 |---|---|
 | `Test.Repo` (`test/support/test_repo.ex`) | Ecto repo for tests |
 | `DataCase` (`data_case.ex`) | Sandbox setup, auto-tags `:integration` |
-| `LiveCase` (`live_case.ex`) | Thin wrapper over `Phoenix.LiveViewTest` with router and endpoint wiring; `put_test_scope/2` seeds the session scope |
+| `LiveCase` (`live_case.ex`) | Thin wrapper over `Phoenix.LiveViewTest` with router and endpoint wiring, on a shared sandbox — rows the test writes are visible to the LiveView. `fake_scope/1` builds a scope, `put_test_scope/2` seeds it into the session, `user_fixture/1` inserts a real user for anything with a foreign key to `phoenix_kit_users` (notifications) |
 | `Test.Hooks` (`hooks.ex`) | `on_mount :assign_scope` — replicates core's admin `live_session` by mirroring the session scope onto `:phoenix_kit_current_scope` / `:phoenix_kit_current_user` |
 | `Test.Endpoint` / `Test.Router` / `Test.Layouts` | Minimal Phoenix plumbing so LiveViews render under `Phoenix.LiveViewTest.live/2`. `Test.Layouts.app/1` renders flashes, which flash assertions depend on |
 | `ActivityLogAssertions` | `assert_activity_logged/2` and `refute_activity_logged/2`, querying `phoenix_kit_activities` directly with action / actor_uuid / metadata-subset matching |
 
-Conformance tests worth knowing about: `test/phoenix_kit_hello_world_test.exs` (behaviour callbacks, tab shape, path helpers, `version/0` against `Mix.Project.config()[:version]`), `test/core_pin_conformance_test.exs` (the `:phoenix_kit` requirement), `test/schema_prefix_conformance_test.exs` (scans `lib/` and fails when a table-backed schema omits `use PhoenixKit.SchemaPrefix`), and `test/phoenix_kit_hello_world/project_extension_test.exs` (the extension catalog and the off-router tab LV).
+Conformance tests worth knowing about: `test/phoenix_kit_hello_world_test.exs` (behaviour callbacks, tab shape, path helpers, `version/0` against `Mix.Project.config()[:version]`), `test/core_pin_conformance_test.exs` (the `:phoenix_kit` requirement), `test/schema_prefix_conformance_test.exs` (scans `lib/` and fails when a table-backed schema omits `use PhoenixKit.SchemaPrefix`), and `test/phoenix_kit_hello_world/project_extension_test.exs` (the extension catalog, and the tab LV mounted off-router with the hub's session).
+
+Two things the suite needs set up by hand, both shown in `hello_live_test.exs`: a `Scope.can?/2` check only passes with the module registered (`PhoenixKit.ModuleRegistry.register/1`) and enabled (`enable_system/0`), and a notification is only created for a recipient that is a real user row. A test that seeds a notification to prove a `handle_info` clause writes the row with the Repo, because `PhoenixKit.Activity.log/3` broadcasts to the subscribed LiveView and would make every clause pass.
+
+Known noise: `Cache settings unavailable` warnings where a test writes a setting (no settings cache runs in the suite), and `ComponentsLive` tests take about two seconds each — the page renders core components that read settings uncached.
 
 ```bash
 mix test                                          # all tests (:integration excluded without a DB)
@@ -335,4 +377,4 @@ publish has succeeded.
 
 ## TODOs
 
-- **`README.md`'s JS-hooks section still teaches inline `<script>` and compile-time base64 delivery.** The ecosystem rule is a prebuilt bundle declared by `js_sources/0`; the README needs rewriting onto it, and this template is what other modules copy. Trigger: the next README pass, or the first time this module ships a hook of its own.
+None. The README's JavaScript section teaches prebuilt bundles declared by `js_sources/0`, which was the one deferred item.

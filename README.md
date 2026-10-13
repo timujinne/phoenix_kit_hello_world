@@ -17,7 +17,9 @@ Modules can be **full-featured** (admin pages, settings, routes) or **headless**
 - [Navigation system](#navigation-system)
 - [Admin integration deep dive](#admin-integration-deep-dive)
 - [Permissions system](#permissions-system)
+- [PhoenixKit components](#phoenixkit-components)
 - [Component reuse](#component-reuse)
+- [Translations (Gettext)](#translations-gettext)
 - [JavaScript in modules](#javascript-in-modules)
 - [Available PhoenixKit APIs](#available-phoenixkit-apis)
 - [Cross-module integration](#cross-module-integration)
@@ -35,6 +37,12 @@ Modules can be **full-featured** (admin pages, settings, routes) or **headless**
 - Enable/disable toggle on the admin Modules page
 - Permission key in the roles/permissions matrix
 - Live sidebar updates when the module is toggled
+- A sub-permission, declared in `permission_metadata/0` and checked with `Scope.can?/2`
+- The module's own Gettext backend and catalogue (`priv/gettext`, Estonian and Russian)
+- Activity logging, an activity feed, and notifications driven by the activity log
+- Deep-links for the module's resource types through `resource_links/0`
+- A live showcase of the core components module authors need
+- The two duck-typed integrations: a dashboard widget and a project extension
 
 ## Quick start
 
@@ -118,20 +126,30 @@ def project do
   ]
 end
 
-# Required: :phoenix_kit must be in extra_applications for auto-discovery
+# Required: :phoenix_kit must be in extra_applications for auto-discovery.
+# :gettext is there for the module's own Gettext backend.
 def application do
   [
-    extra_applications: [:logger, :phoenix_kit]
+    extra_applications: [:logger, :gettext, :phoenix_kit]
   ]
 end
 
 defp deps do
   [
-    {:phoenix_kit, "~> 1.7"},
-    {:phoenix_live_view, "~> 1.0"}
+    # Compound form: a patch-precise floor and an open ceiling. A
+    # three-segment `~> 2.38.0` means `< 2.39.0` and makes `mix deps.get`
+    # unsolvable for any host on a newer core minor.
+    {:phoenix_kit, ">= 2.38.0 and < 3.0.0"},
+    {:phoenix_live_view, "~> 1.1"},
+    {:gettext, "~> 1.0"}
   ]
 end
 ```
+
+Set the `phoenix_kit` floor to the oldest core release that has everything your
+module calls, and raise it in the same change that starts using something
+newer — a function, a component, or a single component attribute. A host on an
+older core otherwise fails at compile time or, worse, at render.
 
 > **Important:** `:phoenix_kit` must be listed in `extra_applications`. Without it, `PhoenixKit.ModuleDiscovery` won't find your module and routes will return 404.
 
@@ -398,17 +416,23 @@ lib/
   my_phoenix_kit_module.ex                   # Main module (behaviour callbacks)
   my_phoenix_kit_module/
     paths.ex                                 # Centralized path helpers (recommended)
+    gettext.ex                               # The module's own Gettext backend
     web/
       index_live.ex                          # Main admin page
       detail_live.ex                         # Detail/edit page
       settings_live.ex                       # Settings page (optional)
       components/
-        my_scripts.ex                        # JS hook component (if needed)
         shared_panel.ex                      # Shared UI components
+priv/
+  gettext/                                   # default.pot + one .po per shipped locale
+  static/assets/my_phoenix_kit_module.js     # Prebuilt JS hook bundle (only if needed)
 test/
   my_phoenix_kit_module_test.exs             # Behaviour compliance tests
 mix.exs                                      # Package configuration
 ```
+
+`priv` must be in the package's `files:` list in `mix.exs`, or the published
+package ships neither the translations nor the JS bundle.
 
 For modules with database tables, add:
 
@@ -456,6 +480,31 @@ For versions that actually run, read `phoenix_kit_boards` (single table) or
 | `route_module/0` | No | `nil` | Custom route macros |
 | `migration_module/0` | No | `nil` | Versioned migration coordinator |
 | `css_sources/0` | No | `[]` | OTP app names for Tailwind CSS scanning |
+| `js_sources/0` | No | `[]` | Prebuilt JS hook bundles for the host LiveSocket |
+| `notification_types/0` | No | `[]` | Per-user notification toggles the module owns |
+| `notification_channels/0` | No | `[]` | Extra notification delivery channels |
+| `resource_links/0` | No | `%{}` | Deep-links for the module's `resource_type`s |
+| `required_modules/0` | No | `[]` | Module keys that must be enabled before this one |
+| `required_integrations/0` | No | `[]` | Integration provider keys the module needs |
+| `integration_providers/0` | No | `[]` | Provider definitions the module contributes |
+| `before_user_delete/1` | No | — | Hook run before a user row is deleted |
+| `sitemap_sources/0` | No | `[]` | Sitemap sources for public content |
+| `oban_queues/0` | No | `[]` | Oban queues the module's jobs run in |
+| `reserved_route_prefixes/0` | No | `[]` | Top-level path segments the module owns |
+| `migrate_legacy/0` | No | `:ok` | One-shot legacy data migrations, run at boot |
+| `email_settings_sections/0` | No | `[]` | Sections added to the core email settings page |
+| `media_reorganizer/0` | No | `nil` | Storage reorganizer source for the module's records |
+
+That is every callback in core 2.38. Later core releases add
+`email_templates/0` (2.44) and `job_kinds/0` (2.48); raise your `phoenix_kit`
+floor before implementing either with `@impl`. The authoritative list is
+`PhoenixKit.Module` in the core version you depend on.
+
+Two further integrations are not callbacks at all but duck-typed functions
+another package discovers at runtime: `phoenix_kit_widgets/0`
+(`phoenix_kit_dashboards`) and `phoenix_kit_project_extensions/0`
+(`phoenix_kit_projects`). `lib/phoenix_kit_hello_world.ex` implements both with
+every field commented.
 
 ## Common patterns
 
@@ -728,10 +777,34 @@ PhoenixKit's `on_mount` hooks inject these assigns into every admin LiveView:
 
 | Assign | Type | Description |
 |---|---|---|
-| `@phoenix_kit_current_scope` | `Scope` | The authenticated user's scope (role, permissions) |
+| `@phoenix_kit_current_scope` | `Scope` | The authenticated user's scope (roles, permissions) |
+| `@phoenix_kit_current_user` | `User` | The authenticated user struct (`.uuid`, `.email`, …) |
 | `@current_locale` | `String` | The current locale string (e.g., `"en"`, `"ja"`) |
 | `@url_path` | `String` | The current URL path (used for active nav highlighting) |
-| `@page_title` | `String` | Set this in `mount/3` — shown in the browser tab |
+
+Read the acting user with `PhoenixKitWeb.Actor.uuid(socket)` /
+`PhoenixKitWeb.Actor.opts(socket)` rather than from the assigns by hand — it
+checks the scope first, then the bare user.
+
+These you **set** in `mount/3`; the admin layout reads them to draw the page
+header, so a page never renders its own `<h1>`:
+
+| Assign | Description |
+|---|---|
+| `page_title` | This page's title — this page only, no module prefix and no trail |
+| `page_section` | The module's name (its admin tab label). Set on every sub-page; the landing page leaves it out, because there the module *is* the title |
+| `page_section_path` | Where the section crumb links: the module's landing page |
+| `page_crumbs` | Every level between the module and this page, as `[%{label:, path:}]` — omit when there is none |
+| `page_subtitle` | One optional sentence under the title |
+
+```elixir
+assign(socket,
+  page_title: gettext("Events"),
+  page_section: gettext("Hello World"),
+  page_section_path: Paths.index(),
+  page_subtitle: gettext("Events logged by the Hello World module.")
+)
+```
 
 ### Tab struct complete reference
 
@@ -742,15 +815,15 @@ All fields available on `%PhoenixKit.Dashboard.Tab{}`:
 | `:id` | atom | *required* | Unique identifier (prefix with `:admin_yourmodule`) |
 | `:label` | string | *required* | Display text in sidebar |
 | `:icon` | string | `nil` | Heroicon name (e.g., `"hero-puzzle-piece"`) |
-| `:path` | string | *required* | Relative slug (`"my-module"`) or absolute (`"/admin/my-module"`) |
+| `:path` | string | *required* | Relative slug (`"my-module"`, the preferred form) or absolute (`"/admin/my-module"`). May carry dynamic segments (`"my-module/:id/edit"`) |
 | `:priority` | integer | `500` | Sort order (lower = higher in sidebar) |
-| `:level` | atom | `:user` | `:admin`, `:settings`, `:user`, or `:all` |
+| `:level` | atom | `:user` | `:admin`, `:user`, or `:all`. Anything else is read as `:user` — a tab returned from `settings_tabs/0` is `:admin` too |
 | `:permission` | string | `nil` | Permission key (use `module_key()`) |
 | `:group` | atom | `nil` | Sidebar group (`:admin_modules` for module tabs) |
 | `:match` | atom/fn | `:prefix` | `:exact`, `:prefix`, `{:regex, ~r/...}`, or `fn path -> bool end` |
 | `:live_view` | tuple | `nil` | `{Module, :action}` for auto-routing |
 | `:parent` | atom | `nil` | Parent tab ID (for hidden sub-pages or subtabs) |
-| `:visible` | bool/fn | `true` | Show in sidebar. `false` hides it. Can be a `fn scope -> bool end` |
+| `:visible` | bool/fn/nil | `nil` | `nil` is "auto": shown unless the path has router parameters (`:id`, `*splat`), which are routes rather than navigation. `true`/`false` force it; `fn scope -> bool end` decides per viewer. For access control use `:permission`, not this |
 | `:badge` | `Badge` | `nil` | Badge indicator (count, dot, status) |
 | `:tooltip` | string | `nil` | Hover text |
 | `:external` | bool | `false` | Whether this links to an external site |
@@ -764,6 +837,11 @@ All fields available on `%PhoenixKit.Dashboard.Tab{}`:
 | `:subtab_animation` | atom | `nil` | `:none`, `:slide`, `:fade`, `:collapse` |
 | `:redirect_to_first_subtab` | bool | `false` | Navigate to first subtab when clicking parent |
 | `:highlight_with_subtabs` | bool | `false` | Keep parent highlighted when subtab is active |
+| `:personal` | bool | `false` | The page shows the viewer their OWN data (an inbox, preferences), so it needs no `:permission` — marking it says the omission is deliberate |
+| `:auto_grant_admin` | bool | `true` | Whether the Admin role is granted this tab's permission by default |
+| `:dynamic_children` | fn | `nil` | `fn scope -> [tab] end` or `fn scope, locale -> [tab] end`, producing child tabs at render time |
+| `:gettext_backend` | module | `nil` | Backend that translates `:label` and `:tooltip` at render. `nil` renders them as written, in every locale |
+| `:gettext_domain` | string | `"default"` | The Gettext domain used with `:gettext_backend` |
 
 ### Subtabs (visible child tabs)
 
@@ -930,11 +1008,12 @@ Priority controls the sort order in the sidebar (lower number = higher position)
 | 100-199 | Core admin (Dashboard) |
 | 200-299 | Users section |
 | 300-399 | Media section |
-| 400-599 | Reserved for future core sections |
-| **600-899** | **Module tabs — use this range** |
+| 400-499 | Reserved for future core sections |
+| 500-639 | First-party modules |
+| **640-899** | **Your module's tabs — use this range** |
 | 900-999 | System section (Settings, Modules) |
 
-Pick a priority in the **600-899** range for your module. Avoid exact conflicts with other modules by spacing them out (e.g., 650, 700, 750).
+Pick a priority in the **640-899** range for your module. Avoid exact conflicts with other modules by spacing them out (e.g., 650, 700, 750).
 
 ### Sidebar groups
 
@@ -978,7 +1057,14 @@ def permission_metadata do
     key: module_key(),          # MUST match module_key/0 exactly
     label: "My Module",         # Shown in the permissions matrix UI
     icon: "hero-puzzle-piece",  # Icon in the matrix
-    description: "Access to the My Module admin pages"
+    description: "Access to the My Module admin pages",
+    # Translate the label in the permissions matrix through your own backend.
+    gettext_backend: MyModule.Gettext,
+    gettext_domain: "default",
+    # Optional: fine-grained grants inside the module (see below).
+    sub_permissions: [
+      %{key: "moderate", label: "Moderate", description: "Approve or reject entries"}
+    ]
   }
 end
 ```
@@ -995,28 +1081,65 @@ alias PhoenixKit.Users.Auth.Scope
 # In a LiveView
 scope = socket.assigns.phoenix_kit_current_scope
 
-Scope.has_module_access?(scope, "my_module")   # does user have this permission?
-Scope.admin?(scope)                             # is user Owner or Admin?
+Scope.has_module_access?(scope, "my_module")   # holds the module's base permission?
+Scope.can?(scope, "my_module.moderate")         # holds this key AND the module is enabled?
+Scope.can_access_admin_area?(scope)             # may reach the admin area at all?
 Scope.system_role?(scope)                       # Owner, Admin, or User (not custom)?
 Scope.owner?(scope)                             # is user Owner?
 Scope.user_roles(scope)                         # list of role names
 ```
 
+`can_access_admin_area?/1` is true for **anyone holding at least one admin
+permission**, including a custom role with a single key — it does not mean
+"Owner or Admin". (`Scope.admin?/1` is its deprecated old name, kept only as an
+alias: the name promised a role check it never made.) To ask about a role, use
+`owner?/1` or `user_roles/1`; to ask about a capability, use a permission.
+
+### Sub-permissions
+
+The base key answers "may this role enter the module". A **sub-permission** is
+an additive grant for one capability inside it. Declare it in
+`permission_metadata/0` with a bare key (`"moderate"`); it is stored, shown in
+the roles matrix and checked as the composed key `"my_module.moderate"`.
+Granting a sub grants its base, and a sub is only effective while the module is
+enabled — so check it with `Scope.can?/2`, which re-reads enablement, in the
+event handler as well as in the template:
+
+```elixir
+def handle_event("moderate", _params, socket) do
+  if Scope.can?(socket.assigns[:phoenix_kit_current_scope], "my_module.moderate") do
+    # ...
+  else
+    {:noreply, put_flash(socket, :error, gettext("You may not moderate."))}
+  end
+end
+```
+
+`Web.HelloLive` in this template shows both checks side by side: "Log demo
+event" needs the base key, "Log moderation event" needs
+`"hello_world.moderate"`.
+
 ### Access guards on admin tabs
 
 PhoenixKit's `on_mount` hook automatically checks the `:permission` field on each tab before rendering the LiveView. If the user's role doesn't have the permission, they get a 302 redirect. You don't need to add manual guards — just set the `:permission` field correctly.
 
-For fine-grained checks within a page (e.g., showing/hiding a delete button):
+For fine-grained checks within a page (e.g., showing/hiding a delete button),
+gate on a sub-permission. Resolve it once into an assign — `Scope.can?/2` reads
+module enablement, so do it in `handle_params/3`, not in the template — and
+check again in the handler, because a hidden button does not stop a crafted
+event:
 
 ```elixir
+def handle_params(_params, _uri, socket) do
+  can_delete = Scope.can?(socket.assigns[:phoenix_kit_current_scope], "my_module.delete")
+  {:noreply, assign(socket, :can_delete, can_delete)}
+end
+
 def render(assigns) do
   ~H"""
-  <div>
-    <h1>Items</h1>
-    <button :if={Scope.admin?(@phoenix_kit_current_scope)} phx-click="delete">
-      Delete
-    </button>
-  </div>
+  <button :if={@can_delete} phx-click="delete" phx-disable-with={gettext("Deleting…")}>
+    {gettext("Delete")}
+  </button>
   """
 end
 ```
@@ -1032,14 +1155,30 @@ These are warnings, not crashes, so a misconfigured module won't take down the a
 
 ## PhoenixKit components
 
-Use `use PhoenixKitWeb, :live_view` in your LiveViews (not `use Phoenix.LiveView` directly). This imports PhoenixKit's core components, Gettext, layout config, and HTML helpers — giving you a consistent admin UI out of the box.
+`use PhoenixKitWeb, :live_view` is the recommended default for an admin LiveView: it imports PhoenixKit's core components, core's Gettext macros, layout config and HTML helpers. Follow it with `use Gettext, backend: MyModule.Gettext` so `gettext/1` translates through your own catalogue — the later `use` wins.
 
-Available components include:
+`use Phoenix.LiveView` directly is also fine, and is what an embedded LiveView (a nested `live_render`, a project-extension tab) should use; it then imports each core component it renders. Three LiveViews in this template do that — `events_live.ex`, `notifications_live.ex` and `project_hello_tab_live.ex`:
+
+```elixir
+use Phoenix.LiveView
+use Gettext, backend: MyModule.Gettext
+
+import PhoenixKitWeb.Components.Core.EmptyState, only: [empty_state: 1]
+import PhoenixKitWeb.Components.Core.Icon, only: [icon: 1]
+```
+
+Either way the rule is the same: reach for the core component, not raw HTML.
+
+Among the components `:live_view` imports:
 
 - `<.icon name="hero-*" />` — Heroicons
 - `<.button>`, `<.simple_form>`, `<.input>`, `<.select>`, `<.textarea>`, `<.checkbox>`
-- `<.flash>`, `<.header>`, `<.badge>`, `<.stat_card>`
-- `<.form_field_label>`, `<.form_field_error>`
+- `<.form_section>`, `<.form_actions>`, `<.label>` and `<.error>` (the form-field label and error primitives the inputs use)
+- `<.flash>`, `<.header>`, `<.stat_card>`, `<.status_badge>` (also `<.role_badge>`, `<.enabled_badge>` — there is no bare `<.badge>`; a plain badge is the daisyUI `badge` class)
+- `<.table_default>` with `<.sort_header_cell>`, `<.search_toolbar>`, `<.table_row_menu>`, the bulk-select family
+- `<.modal>`, `<.confirm_modal>`, `<.popover_panel>`, `<.nav_tabs>`, `<.pagination>`, `<.load_more>`, `<.empty_state>`, `<.search_picker>`
+
+The **Components** page of this module (`components_live.ex`) renders each of these live with a copy-paste snippet.
 
 ```elixir
 defmodule MyModule.Web.DashboardLive do
@@ -1189,37 +1328,41 @@ import MyPhoenixKitModule.Web.Components.EditorPanel
 
 ### Multi-step modal component
 
-For complex workflows, extract modal components:
+For complex workflows, extract modal components. Build them on core's
+`<.modal>`, never on a raw `<div class="modal modal-open">`: core's modal is a
+native dialog in the top layer, so it traps focus, closes on Esc, and guards
+unsaved input. A hand-rolled `modal-open` div has none of that.
 
 ```elixir
 # lib/my_phoenix_kit_module/web/components/create_modal.ex
 defmodule MyPhoenixKitModule.Web.Components.CreateModal do
   use Phoenix.Component
 
+  import PhoenixKitWeb.Components.Core.Modal, only: [modal: 1]
+
   attr :open, :boolean, required: true
   attr :step, :string, default: "choose"
-  attr :templates, :list, default: []
-  attr :creating, :boolean, default: false
+  attr :on_close, :string, default: "modal_close"
 
-  def modal(assigns) do
+  def create_modal(assigns) do
     ~H"""
-    <div :if={@open} class="modal modal-open">
-      <div class="modal-box max-w-lg">
-        <%= case @step do %>
-          <% "choose" -> %>
-            <h3 class="text-lg font-bold">Choose Type</h3>
-            <%!-- Step 1 content --%>
-          <% "configure" -> %>
-            <h3 class="text-lg font-bold">Configure</h3>
-            <%!-- Step 2 content --%>
-        <% end %>
-      </div>
-      <div class="modal-backdrop" phx-click="modal_close"></div>
-    </div>
+    <.modal id="create-modal" show={@open} on_close={@on_close} max_width="lg">
+      <%= case @step do %>
+        <% "choose" -> %>
+          <h3 class="text-lg font-bold">Choose Type</h3>
+          <%!-- Step 1 content --%>
+        <% "configure" -> %>
+          <h3 class="text-lg font-bold">Configure</h3>
+          <%!-- Step 2 content --%>
+      <% end %>
+    </.modal>
     """
   end
 end
 ```
+
+The Components page shows the same modal live, with a form inside it and the
+drawer placement.
 
 ### Component design guidelines
 
@@ -1229,13 +1372,123 @@ end
 4. **Prefix element IDs** with the component's `@id` attr to avoid collisions when multiple instances are on the same page
 5. **Pass event names as attrs** (e.g., `on_edit="edit_item"`) rather than hardcoding them — this makes the component reusable across LiveViews with different event handlers
 
+## Translations (Gettext)
+
+A module owns its translations: its own Gettext backend, its own catalogue in
+`priv/gettext`, shipped in its own package. A host then gets your strings
+translated without touching core's catalogue or its own.
+
+### 1. The backend
+
+```elixir
+# lib/my_phoenix_kit_module/gettext.ex
+defmodule MyPhoenixKitModule.Gettext do
+  use Gettext.Backend, otp_app: :my_phoenix_kit_module
+end
+```
+
+with `{:gettext, "~> 1.0"}` in `deps`, `:gettext` in `extra_applications`, and
+`priv` in the package's `files:`.
+
+### 2. Call sites use the macros, with a literal msgid
+
+```elixir
+use PhoenixKitWeb, :live_view
+use Gettext, backend: MyPhoenixKitModule.Gettext   # AFTER the web macro: the later `use` wins
+
+gettext("Save")
+gettext("Saved note: %{note}", note: note)
+ngettext("%{count} event", "%{count} events", count)
+```
+
+`mix gettext.extract` reads the macros at compile time. A runtime call —
+`Gettext.gettext(MyPhoenixKitModule.Gettext, "Save")` — is invisible to it:
+the string lands in no catalogue, every locale shows English, and every
+"untranslated" count still says zero.
+
+Wrap everything a user reads: `page_title`, `page_subtitle`, flashes, button
+labels, `phx-disable-with` text, empty-state copy, `aria-label`s. Code samples
+inside `<pre>` are not copy.
+
+**One sentence is one msgid.** Word order differs between languages, so a
+sentence assembled from translated fragments around a link or a value cannot
+be translated. Put values in with `%{placeholders}`; for a link or a `<code>`
+span in the middle of a sentence, `Web.HelloLive`'s `<.inline>` renders markup
+where the placeholder is while keeping the msgid one whole, HTML-free sentence.
+A count gets `ngettext/3` — Russian has three plural forms, not two.
+
+### 3. Labels that are data, not code
+
+Tab labels and the permission label are plain strings in structs and maps;
+core translates them when it renders the sidebar and the permissions matrix,
+through the backend each declaration names:
+
+```elixir
+%Tab{label: "Events", gettext_backend: MyPhoenixKitModule.Gettext, gettext_domain: "default", ...}
+
+%{key: module_key(), label: "My Module", gettext_backend: MyPhoenixKitModule.Gettext, ...}
+```
+
+The extractor cannot see a string that is not inside a Gettext macro, so pin
+each one — `dgettext_noop/2` registers the msgid and returns it unchanged:
+
+```elixir
+def translatable_labels do
+  [dgettext_noop("default", "My Module"), dgettext_noop("default", "Events")]
+end
+```
+
+`PhoenixKitHelloWorld.translatable_labels/0` is that list here, and a test
+compares it against the labels the module actually declares.
+
+Strings a *different* package renders from your data — widget names in the
+`phoenix_kit_dashboards` catalog, extension names in a project's Modules
+panel — go through that package's catalogue, not yours; leave them plain.
+
+### 4. Extract, translate, verify
+
+```bash
+mix gettext.extract --merge          # refresh default.pot and every .po
+mix gettext.merge priv/gettext --locale et   # add a locale
+```
+
+Then fill every new `msgstr` in every locale you ship, in the same change.
+Review each `#, fuzzy` entry the merge produced — its guesses are wrong more
+often than right, and Gettext ignores a fuzzy entry at runtime anyway — and
+diff the `.po` files to see that no existing translation changed. Completeness
+is a code-versus-catalogue question, not an empty-`msgstr` count:
+`test/phoenix_kit_hello_world_test.exs` asks the real backend for every msgid
+in `default.pot` in every shipped locale.
+
+An embedded LiveView (a nested `live_render`) is its own process and starts in
+the default locale; set it on mount from the session, for **both** backends —
+your own and core's — as `project_hello_tab_live.ex` does:
+
+```elixir
+Gettext.put_locale(MyPhoenixKitModule.Gettext, locale)
+Gettext.put_locale(PhoenixKitWeb.Gettext, locale)
+```
+
+Setting only your own leaves every core component inside the embed in the
+default language.
+
 ## JavaScript in modules
 
-External modules **cannot inject files into the parent app's asset pipeline** (`app.js`). All JavaScript must be delivered inside your LiveView templates.
+A LiveView JS hook has to be in the host's single `LiveSocket` **when it is
+constructed**. A module cannot edit the host's `app.js`, and it must not
+register a hook from an inline `<script>` in a template either: morphdom does
+not execute a script tag it inserts, so an inline hook works on a full page
+load and silently binds to nothing once the page is reached by
+`navigate/2` — which is how every sidebar link reaches it. There is no error;
+the element just has no behaviour.
 
-### First: check whether core already has the hook
+So there are exactly two ways to get a hook, in this order.
 
-Hooks that ship in PhoenixKit's own JS bundle are registered on **every** page load, so they work no matter how the page is reached. A hook you deliver from your own template does not have that property (see the rules below). Before writing one, check `PhoenixKitHooks` in core — e.g. `InfiniteScroll`, which pairs with `<.load_more infinite>`:
+### First: use a core hook
+
+Core's hooks ship in PhoenixKit's own bundle, are in the `LiveSocket` on every
+page load, and usually come wrapped in a component — you write no JavaScript
+at all. `InfiniteScroll` pairs with `<.load_more infinite>`:
 
 ```elixir
 import PhoenixKitWeb.Components.Core.Pagination, only: [load_more: 1]
@@ -1243,205 +1496,97 @@ import PhoenixKitWeb.Components.Core.Pagination, only: [load_more: 1]
 <.load_more id="events-load-more" loaded={@loaded} total={@total} infinite />
 ```
 
-`events_live.ex` in this template uses exactly that — auto-load on scroll plus a manual "Load more" fallback button, and no JS of its own. Only when core has nothing suitable do you deliver your own, using the patterns below.
+`events_live.ex` in this template uses exactly that — auto-load on scroll plus
+a manual "Load more" fallback button, and no JS of its own. Others you get the
+same way: `PkDialog` (`<.modal>`), `RowMenu` (`<.table_row_menu>`),
+`BulkSelectScope` (`<.bulk_select_scope>`), `SearchPicker`
+(`<.search_picker>`), `TableCardView` (`<.table_default toggleable>`),
+`TimeAgo` (`<.time_ago>`) and the sortable hooks behind `<.draggable_list>`.
+The Components page of this module exercises each one.
 
-### Simple inline hooks
+### Otherwise: ship a prebuilt bundle and declare it with `js_sources/0`
 
-For small amounts of JS, use inline `<script>` tags. PhoenixKit's `app.js` collects hooks from `window.PhoenixKitHooks` when creating the LiveSocket.
-
-```elixir
-# lib/my_module/web/components/my_scripts.ex
-defmodule MyModule.Web.Components.MyScripts do
-  use Phoenix.Component
-
-  def my_scripts(assigns) do
-    ~H"""
-    <script>
-      window.PhoenixKitHooks = window.PhoenixKitHooks || {};
-      window.PhoenixKitHooks.MyHook = {
-        mounted() {
-          // Your hook logic here
-          this.el.addEventListener("click", () => {
-            this.pushEvent("clicked", {id: this.el.dataset.id});
-          });
-        },
-        destroyed() {
-          // Cleanup when element is removed
-        }
-      };
-    </script>
-    """
-  end
-end
-```
-
-Then in your LiveView template:
-
-```heex
-<.my_scripts />
-<div id="my-widget" phx-hook="MyHook" phx-update="ignore" data-id={@item.id}>
-  ...
-</div>
-```
-
-### Key rules for inline JS
-
-- Register hooks on `window.PhoenixKitHooks` — PhoenixKit spreads this into the LiveSocket
-- A page whose hook is registered by an inline `<script>` in its own `render/1` must be entered via **full page load** (`redirect/2` or plain `<a href>`), not `navigate/2`, so that script executes. This constraint bites harder than it sounds: in-app sidebar links and `<.link navigate={...}>` are all patched navigation, so the hook silently binds to nothing and the feature does nothing, with no error. Prefer a core hook (above) or the base64 delivery below, and reserve inline `<script>` for pages that genuinely are only reached by full load.
-- Never assume access to `node_modules`, `esbuild`, or the parent app's JS build
-
-### Base64-encoded JS delivery (for large scripts)
-
-Large inline `<script>` tags inside LiveView renders **do not work reliably**. LiveView's morphdom DOM patching can corrupt script boundaries, and HTML-like strings inside JS confuse the rendering pipeline. Browser extensions (e.g., MetaMask's hardened JS) can also block `eval()` from inline scripts.
-
-The solution is **compile-time base64 encoding**. The JS source file is read and encoded at compile time, then emitted as a `data-` attribute on a hidden `<div>`. A tiny bootstrapper decodes and executes it via `document.createElement("script")`:
+When core has nothing suitable, your module ships its own hooks as a
+**prebuilt** JavaScript file in its `priv/` and declares it:
 
 ```elixir
-# lib/my_module/web/components/my_scripts.ex
-defmodule MyModule.Web.Components.MyScripts do
-  @moduledoc """
-  JavaScript component that delivers hooks via base64-encoded compile-time embedding.
-
-  The JS source lives in `my_hooks.js` alongside this module. After editing it,
-  recompile from the parent app:
-
-      mix deps.compile my_phoenix_kit_module --force
-
-  Then restart the Phoenix server.
-  """
-  use Phoenix.Component
-
-  # Read and encode JS at compile time
-  @external_resource Path.join(__DIR__, "my_hooks.js")
-  @js_source __DIR__ |> Path.join("my_hooks.js") |> File.read!()
-  @js_base64 Base.encode64(@js_source)
-  @js_version to_string(:erlang.phash2(@js_source))
-
-  def my_scripts(assigns) do
-    assigns =
-      assigns
-      |> assign(:js_base64, @js_base64)
-      |> assign(:js_version, @js_version)
-
-    ~H"""
-    <div id="my-module-js-payload" hidden data-c={@js_base64} data-v={@js_version}></div>
-    <script>
-    (function(){
-      var p=document.getElementById("my-module-js-payload");
-      if(!p) return;
-      var v=p.dataset.v;
-      if(window.__MyModuleVersion===v) return;
-      var old=document.getElementById("my-module-js-script");
-      if(old) old.remove();
-      window.__MyModuleVersion=v;
-      var s=document.createElement("script");
-      s.id="my-module-js-script";
-      s.textContent=atob(p.dataset.c);
-      document.head.appendChild(s);
-    })();
-    </script>
-    """
-  end
-end
-```
-
-And the JS source file alongside it:
-
-```javascript
-// lib/my_module/web/components/my_hooks.js
-// This file is read at compile time by my_scripts.ex, base64-encoded,
-// and embedded in the rendered HTML. After editing, run:
-//   mix deps.compile my_phoenix_kit_module --force
-(function() {
-  "use strict";
-
-  if (window.__MyModuleInitialized) return;
-  window.__MyModuleInitialized = true;
-
-  window.PhoenixKitHooks = window.PhoenixKitHooks || {};
-
-  window.PhoenixKitHooks.MyEditor = {
-    mounted() {
-      // Your hook logic here
-      this.handleEvent("load-data", (data) => {
-        // Handle server-pushed events
-      });
-    },
-    destroyed() {
-      // Cleanup
+# lib/my_phoenix_kit_module.ex
+@impl PhoenixKit.Module
+def js_sources do
+  [
+    %{
+      app: :my_phoenix_kit_module,
+      file: "static/assets/my_phoenix_kit_module.js",
+      global: "MyPhoenixKitModuleHooks"
     }
-  };
-})();
+  ]
+end
 ```
 
-**Why this works better than inline scripts:**
+| Key | Meaning |
+|---|---|
+| `:app` | The OTP app that ships the file. Resolved through `:code.priv_dir/1`, so Hex installs and path deps both work |
+| `:file` | Path of the bundle **inside that app's `priv/`** |
+| `:global` | The `window.<Name>` the bundle assigns its hooks to. Must be unique across every installed module — the compiler fails on a collision |
 
-1. **No morphdom corruption** — base64 contains no HTML-significant characters (`<`, `>`, `</script>`)
-2. **No HTML confusion** — JS code containing HTML strings (e.g., `'<h1>Title</h1>'`) won't break
-3. **Browser extension safe** — `document.createElement("script")` bypasses extension blocks on `eval()`
-4. **Version tracking** — the content hash (`@js_version`) ensures re-execution on LiveView navigations when JS changes
-5. **Self-contained** — no files need to be copied to the parent app
-6. **`@external_resource`** — tells Mix to track the JS file for recompilation
-
-**Editing workflow:**
-
-1. Edit `my_hooks.js`
-2. From parent app: `mix deps.compile my_phoenix_kit_module --force`
-3. Restart the Phoenix server (dev reloader only watches the app's own modules, not deps)
-
-### Loading vendor libraries from CDN
-
-For large third-party libraries (e.g., GrapesJS, CodeMirror), load them from CDN dynamically:
+The bundle is plain browser JavaScript that assigns an object of hooks to that
+global:
 
 ```javascript
-// In your hooks JS file
-var _libLoaded = false;
-var _libCallbacks = [];
-
-function ensureLibrary(callback) {
-  if (typeof MyLibrary !== "undefined") {
-    callback();
-    return;
-  }
-  _libCallbacks.push(callback);
-  if (_libLoaded) return;
-  _libLoaded = true;
-
-  // Load CSS
-  var link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = "https://cdn.jsdelivr.net/npm/my-library@1.0/dist/style.min.css";
-  document.head.appendChild(link);
-
-  // Load JS
-  var script = document.createElement("script");
-  script.src = "https://cdn.jsdelivr.net/npm/my-library@1.0/dist/lib.min.js";
-  script.onload = function() {
-    var cbs = _libCallbacks.slice();
-    _libCallbacks = [];
-    cbs.forEach(function(cb) { cb(); });
-  };
-  document.head.appendChild(script);
-}
-
-// In your hook:
-window.PhoenixKitHooks.MyEditor = {
-  mounted() {
-    ensureLibrary(() => {
-      // Library is now available
-      this.editor = new MyLibrary.Editor(this.el, { /* options */ });
-    });
+// priv/static/assets/my_phoenix_kit_module.js
+window.MyPhoenixKitModuleHooks = {
+  // Namespace every hook name with the module's name.
+  MyPhoenixKitModuleEditor: {
+    mounted() {
+      this.el.addEventListener("input", () => {
+        this.pushEvent("content_changed", {value: this.el.value});
+      });
+      this.handleEvent("load-content", ({value}) => { this.el.value = value; });
+    }
   }
 };
 ```
 
-### Vendor JS files (bundled)
+```heex
+<textarea id="my-editor" phx-hook="MyPhoenixKitModuleEditor" phx-update="ignore"></textarea>
+```
 
-If you prefer to bundle the library instead of using a CDN:
+Core's `:phoenix_kit_js_sources` compiler — installed in the host by
+`mix phoenix_kit.install` / `mix phoenix_kit.update` — concatenates every
+declared bundle into the host's `priv/static/assets/vendor/phoenix_kit_modules.js`
+and folds each `window.<Global>` into `window.PhoenixKitHooks`, which the host
+already spreads into its `LiveSocket`. The host loads one script and edits
+nothing per module.
 
-1. Bundle the minified file in `priv/static/vendor/your_lib/`
-2. Your install task copies it to the parent app's `priv/static/vendor/`
-3. Load it via `<script src={~p"/vendor/your_lib/lib.min.js"}>` in your template
+Rules that bite:
+
+- **Prebuilt means prebuilt.** The host does not run your bundler. If you
+  write TypeScript or import npm packages, build to a single browser-ready
+  file and commit the output under `priv/static/assets/`. A third-party
+  library goes **into** that bundle — not behind a CDN `<script>` tag, which
+  is an inline script again, an external request on every page, and a
+  supply-chain dependency the host never agreed to.
+- **`priv` must be in `files:`** in your `mix.exs` package, or the published
+  package has no bundle and the hook is missing only for Hex installs.
+- **Namespace hook names** (`MyPhoenixKitModuleEditor`, not `Editor`). The
+  compiler enforces unique *globals* but cannot see inside a bundle, and the
+  final fold is last-write-wins on *hook names*: two modules exporting `Chart`
+  clobber each other, and a hook named like a core one (`RowMenu`) silently
+  replaces core's.
+- **Do not annotate `js_sources/0` with `@impl` unless your `phoenix_kit`
+  floor declares the callback** (core 2.38 does). Against an older core the
+  annotation is a compile warning, and warnings are errors in `mix precommit`.
+- **The host recompiles to pick it up.** After adding or changing a bundle,
+  the host needs `mix compile` (the compiler regenerates the combined file)
+  and a hard reload.
+- **Make hooks an enhancement where you can.** A page that still works with
+  the hook absent degrades instead of breaking; `phoenix_kit_dashboards`'
+  drag-and-drop hooks sit on top of a form that does the same job.
+
+References: `phoenix_kit_dashboards` (`js_sources/0` plus
+`priv/static/assets/phoenix_kit_dashboards.js`) and `phoenix_kit_comments`.
+This template ships no hook of its own, so it leaves `js_sources/0` at its
+`[]` default.
 
 ### LiveView JS interop
 
@@ -1485,11 +1630,14 @@ Check what the current user can access. The scope is available in LiveViews via 
 # In a LiveView
 scope = socket.assigns.phoenix_kit_current_scope
 
-Scope.has_module_access?(scope, "my_module")   # does user have this permission?
-Scope.admin?(scope)                             # is user Owner or Admin?
+Scope.has_module_access?(scope, "my_module")   # holds the module's base permission?
+Scope.can?(scope, "my_module.moderate")         # holds this key AND the module is enabled?
+Scope.can_access_admin_area?(scope)             # may reach the admin area at all (any admin permission)
 Scope.system_role?(scope)                       # Owner, Admin, or User (not custom)?
 Scope.owner?(scope)                             # is user Owner?
 ```
+
+See [Checking permissions in code](#checking-permissions-in-code) — `Scope.admin?/1` is deprecated.
 
 ### Tab struct (`PhoenixKit.Dashboard.Tab`)
 
@@ -1542,53 +1690,78 @@ If your module won't work without another module, add it to `mix.exs`. Mix enfor
 # mix.exs
 defp deps do
   [
-    {:phoenix_kit, "~> 1.7"},
-    {:phoenix_kit_billing, "~> 1.0"}  # hard requirement
+    {:phoenix_kit, ">= 2.38.0 and < 3.0.0"},
+    {:phoenix_kit_billing, "~> 0.21"}  # hard requirement
   ]
 end
 ```
 
-Then use it directly in your code — it's always available:
+Then use it directly in your code — the code is always there, but the feature
+can still be switched off, so ask `enabled?/0`:
 
 ```elixir
-alias PhoenixKit.Modules.Billing
-
-def get_customer_for_user(user) do
-  if Billing.enabled?() do
-    Billing.get_customer(user)
+def checkout_currencies do
+  if PhoenixKitBilling.enabled?() do
+    PhoenixKitBilling.list_enabled_currencies()
   else
-    nil  # billing code is installed but the feature is toggled off
+    []  # billing code is installed but the feature is toggled off
   end
 end
 ```
 
+Declare the same requirement to core with `required_modules/0`
+(`def required_modules, do: ["billing"]`), so the Modules page can say why
+yours cannot be enabled on its own.
+
 ### Optional dependency
 
-If your module has bonus features when another module is present but works fine without it, use `Code.ensure_loaded?/1` at runtime:
+If your module has bonus features when another module is present but works fine without it, declare the dep `optional: true` and check for it at runtime with `Code.ensure_loaded?/1`:
 
 ```elixir
+# mix.exs
+{:phoenix_kit_ai, "~> 0.25", optional: true}
+```
+
+```elixir
+# The module is absent in hosts that do not install it; tell the compiler
+# the reference is deliberate, or it is an "undefined module" warning.
+@compile {:no_warn_undefined, PhoenixKitAI}
+
 def ai_features_available? do
-  Code.ensure_loaded?(PhoenixKit.Modules.AI) and
-    PhoenixKit.Modules.AI.enabled?()
+  Code.ensure_loaded?(PhoenixKitAI) and PhoenixKitAI.enabled?()
 end
 
-def maybe_generate_summary(content) do
+def maybe_generate_summary(endpoint_uuid, content) do
   if ai_features_available?() do
-    PhoenixKit.Modules.AI.generate(content, "Summarize this")
+    PhoenixKitAI.ask(endpoint_uuid, "Summarize this:\n\n" <> content)
   else
     {:ok, nil}
   end
 end
 ```
 
-This is how the Publishing module integrates with AI — translation features appear only when the AI module is installed and enabled, but publishing works fine without it.
+`optional: true` governs the *consumer's* dependency closure only — the dep is
+still present in your own build, so a direct reference you forgot to guard
+compiles fine for you and breaks in a host without it. Keep every call behind
+one doorway function, and compile once with the dep removed to prove it.
+
+Two integrations need no dependency in either direction, because the other
+package discovers a plain function on your module at runtime:
+`phoenix_kit_widgets/0` contributes widgets to `phoenix_kit_dashboards`, and
+`phoenix_kit_project_extensions/0` contributes a tab to `phoenix_kit_projects`.
+This template implements both as fully commented references
+(`lib/phoenix_kit_hello_world.ex`, `web/hello_widget.ex`,
+`web/project_hello_tab_live.ex`). Likewise `resource_links/0` makes your
+resource types clickable in core's activity feed and in `phoenix_kit_comments`
+with no host configuration.
 
 ### Pattern summary
 
 | Scenario | How | What happens if missing |
 |---|---|---|
 | **Required** | Add to `mix.exs` deps | `mix deps.get` fails |
-| **Optional, installed** | `Code.ensure_loaded?/1` + `enabled?()` | Feature hidden, no errors |
+| **Optional** | `optional: true` dep + `Code.ensure_loaded?/1` + `enabled?()` | Feature hidden, no errors |
+| **Duck-typed** | Export the function the other package looks for | Nothing happens; no dependency either way |
 | **Feature flag** | `Settings.get_boolean_setting/2` | Feature toggled off at runtime |
 
 ## Database conventions
@@ -1613,7 +1786,7 @@ Every table-backed schema starts with the same two lines:
 ```elixir
 defmodule MyPhoenixKitModule.Schemas.Item do
   use Ecto.Schema
-  use PhoenixKit.SchemaPrefix   # core >= 1.7.189
+  use PhoenixKit.SchemaPrefix
   import Ecto.Changeset
 
   @primary_key {:uuid, UUIDv7, autogenerate: true}
@@ -1621,7 +1794,7 @@ defmodule MyPhoenixKitModule.Schemas.Item do
 
   schema "phoenix_kit_my_module_items" do
     field :name, :string
-    timestamps(type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
   end
 end
 ```
@@ -1640,9 +1813,9 @@ A fully-commented copyable template lives at
 `lib/` so a schema can't silently skip the attribute — copy both.
 
 One more rule that file records: the schema's `timestamps/1` type must match
-the one your migration used. `timestamps(type: :utc_datetime)` against
-`timestamptz(6)` columns (what `:utc_datetime_usec` creates) silently
-truncates on write.
+the one your migration used — both templates here use `:utc_datetime_usec`.
+`timestamps(type: :utc_datetime)` against the microsecond columns
+`:utc_datetime_usec` creates silently truncates on write.
 
 ### Versioned migrations
 
@@ -2381,26 +2554,26 @@ alias MyModule.Test.Repo, as: TestRepo
 db_config = Application.get_env(:my_module, TestRepo, [])
 db_name = db_config[:database] || "my_module_test"
 
-# Check if test database exists
+# One classified connection attempt, with the repo's OWN credentials and
+# transport, before anything starts the pool. Core ships the preflight.
+#
+# Do not probe with `psql -l` instead: it runs as the shell's user over a unix
+# socket, so it says "the database is there" and nothing about whether the
+# CONFIGURED role can reach it over TCP — and when it cannot, the answer
+# arrives minutes later as a pool checkout timeout that reads like a flaky test.
 db_check =
-  case System.cmd("psql", ["-lqt"], stderr_to_stdout: true) do
-    {output, 0} ->
-      exists =
-        output
-        |> String.split("\n")
-        |> Enum.any?(fn line ->
-          line |> String.split("|") |> List.first("") |> String.trim() == db_name
-        end)
+  case PhoenixKit.TestSupport.PostgresPreflight.check(db_config) do
+    :ok ->
+      :exists
 
-      if exists, do: :exists, else: :not_found
-
-    _ ->
-      :try_connect
+    {:error, _reason, message} ->
+      IO.puts(:stderr, "\n" <> message)
+      :not_found
   end
 
 repo_available =
   if db_check == :not_found do
-    IO.puts("\n  Test database \"#{db_name}\" not found — integration tests excluded.\n  Run: createdb #{db_name}\n")
+    IO.puts("\n  Cannot reach test database \"#{db_name}\" — integration tests excluded.\n  The reason is printed above.\n")
     false
   else
     try do
@@ -2506,7 +2679,7 @@ setup_all do
 end
 ```
 
-**`uuid_generate_v7()` has to exist before your table uses it as a default.** Core's V40 migration creates it, so `PhoenixKit.Migration.ensure_current/2` in `test_helper.exs` covers the test database. In a host you can't assume core's chain ran first — call `PhoenixKit.Migrations.Postgres.Helpers.ensure_uuid_v7_function/1` at the top of your `up_v1/1` (it's a no-op when the function already exists, and creates it inside the install's schema when it doesn't).
+**`uuid_generate_v7()` has to exist before your table uses it as a default.** Core's V40 migration creates it, so `PhoenixKit.Migration.ensure_current/2` in `test_helper.exs` covers the test database. In a host you can't assume core's chain ran first — at the top of your `up_v1/1` call `PhoenixKit.Migrations.Postgres.Helpers.ensure_extension!("pgcrypto")` **and then** `Helpers.ensure_uuid_v7_function(prefix)`. Both are no-ops when already present. The first is not optional: `uuid_generate_v7()` is built on pgcrypto's `gen_random_bytes`, and `ensure_uuid_v7_function/1` installs no extensions — skip it and the function is created fine and then fails on the first insert.
 
 ## Verifying your module
 
@@ -2650,10 +2823,11 @@ Make sure you're using `update_boolean_setting_with_module/3` (not `update_setti
 
 ### JS hooks not registering
 
-1. **Check how the hook is delivered** — a hook registered by an inline `<script>` in `render/1` only exists after a full page load (`redirect/2` or `<a href>`), never after `navigate/2`. If the page is reachable from the sidebar or any `<.link navigate={...}>`, that's the bug: switch to a core hook or the base64 delivery pattern above
-2. **Check `window.PhoenixKitHooks`** — open browser console, verify your hook is registered
-3. **Check element has `phx-hook`** — must match the hook name exactly
-4. **Check element has a unique `id`** — required for hooks to work
+1. **Check how the hook is delivered** — a hook registered by an inline `<script>` in `render/1` only exists after a full page load, never after `navigate/2`. Use a core hook, or ship a bundle declared by `js_sources/0` ([JavaScript in modules](#javascript-in-modules))
+2. **Check `window.PhoenixKitHooks`** — open the browser console and look for your hook's (namespaced) name. Absent: the host has not recompiled since the bundle was added, the published package is missing `priv`, or the bundle assigns a different global than `js_sources/0` declares
+3. **Check for a name collision** — a hook that exists but behaves like something else was overwritten by another bundle exporting the same hook name
+4. **Check the element has `phx-hook`** — must match the hook name exactly
+5. **Check the element has a unique `id`** — required for hooks to work
 
 ### Changes not taking effect
 
@@ -2666,11 +2840,12 @@ Stale compiled `.beam` files can persist old module versions. When changes aren'
 
 This is especially common when debugging route registration, CSS scanning, or callback changes.
 
-### Base64 JS not updating
+### Translations not showing
 
-1. **Recompile the dep** — `mix deps.compile my_module --force` from the parent app
-2. **Restart the server** — dev reloader doesn't pick up dep changes automatically
-3. **Check `@external_resource`** — must point to the JS file so Mix tracks it
+1. **Check the string is extracted** — only the macro form with a literal msgid (`gettext("…")`) reaches `default.pot`. A runtime `Gettext.gettext(Backend, msgid)` call, or a label stored as data, is in no catalogue unless a `gettext_noop/1` pins it
+2. **Check which backend is in effect** — after `use PhoenixKitWeb, :live_view` the macros point at core's backend until your own `use Gettext, backend: MyModule.Gettext` follows it
+3. **Check the `.po` entry** — an empty `msgstr` and a `#, fuzzy` entry both render the English msgid
+4. **Check the package** — `priv` must be in `files:`, and the host recompiles the dep to pick up changed `.po` files
 
 ## Publishing to Hex
 
@@ -2693,16 +2868,24 @@ defp package do
   [
     licenses: ["MIT"],
     links: %{"GitHub" => "https://github.com/you/my_phoenix_kit_module"},
-    files: ~w(lib mix.exs README.md LICENSE)
+    # `priv` carries the Gettext catalogue and any JS bundle — without it the
+    # published package has neither.
+    files: ~w(lib priv .formatter.exs mix.exs README.md CHANGELOG.md LICENSE)
   ]
 end
 ```
 
-2. Switch the phoenix_kit dep from path to hex version:
+2. Make sure the phoenix_kit dep is the Hex requirement, in the compound form, and not a `path:`:
 
 ```elixir
-{:phoenix_kit, "~> 1.7"}  # not path: "../phoenix_kit"
+{:phoenix_kit, ">= 2.38.0 and < 3.0.0"}  # not path: "../phoenix_kit"
 ```
+
+This template never writes a `path:` tuple at all: `pk_dep/3` in its `mix.exs`
+swaps the Hex pin for a local checkout only while an environment variable is
+exported (`PHOENIX_KIT_PATH=../phoenix_kit mix test`), so there is nothing to
+switch back before publishing, and `test/core_pin_conformance_test.exs` fails
+the build on a committed `path:` or a narrowed pin.
 
 3. Publish:
 
@@ -2729,7 +2912,9 @@ No config needed — auto-discovery handles the rest.
 7. **Settings keys** must be namespaced (e.g., `"my_module_enabled"`, not `"enabled"`)
 8. **`get_config/0`** is called on every Modules page render — keep it fast
 9. **Paths** must go through `Routes.path/1` — never use relative paths in templates
-10. **JS hooks** must register on `window.PhoenixKitHooks` — no access to parent app's build pipeline
+10. **JS hooks** come from core, or ship as a prebuilt bundle declared by `js_sources/0` with namespaced hook names — never from an inline `<script>`
+11. **User-facing strings** go through your own Gettext backend in the macro form, and every shipped locale's `.po` is filled in the same change
+12. **The `phoenix_kit` pin** is the compound form (`>= x.y.z and < 3.0.0`), with the floor at the oldest core that has everything you call
 
 ## License
 

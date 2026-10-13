@@ -12,56 +12,37 @@
 # The test endpoint runs with `server: false` (no port opened); LiveView
 # tests drive it via `Phoenix.LiveViewTest.live/2` only.
 
-# Elixir 1.19's `mix test` no longer auto-loads modules from the
-# `:elixirc_paths` test directories at test-helper time — only files
-# matching `:test_load_filters` get loaded by the test runner. Our
-# support modules are compiled but not loaded, so explicit
-# `Code.require_file/2` calls are needed before this file references
-# them.
-support_dir = Path.expand("support", __DIR__)
-
-[
-  "test_repo.ex",
-  "test_layouts.ex",
-  "hooks.ex",
-  "test_router.ex",
-  "test_endpoint.ex",
-  "activity_log_assertions.ex",
-  "data_case.ex",
-  "live_case.ex"
-]
-|> Enum.each(&Code.require_file(&1, support_dir))
+# The support modules in test/support (the repo, endpoint, router, case
+# templates) are compiled by `elixirc_paths(:test)` in mix.exs and are in the
+# code path before this file runs — referencing one loads it. Do not also
+# `Code.require_file/2` them here: that compiles each a second time and
+# prints a "redefining module" warning per file.
 
 # Check if the test database exists
 db_name =
   Application.get_env(:phoenix_kit_hello_world, PhoenixKitHelloWorld.Test.Repo)[:database] ||
     "phoenix_kit_hello_world_test"
 
-# The preflight ships in core, and this module's core floor (`~> 2.0`)
-# predates it — so it is used when the running core has it, and otherwise
-# this falls through to exactly the previous behaviour.
+# One classified connection attempt, with the repo's OWN credentials and
+# transport, before anything starts the pool. Core ships the preflight
+# (`PhoenixKit.TestSupport.PostgresPreflight`) and this module's core floor
+# carries it, so it is called directly.
+#
+# Asking the repo's own question matters: a database listing run as the
+# shell's user over a unix socket reports "the database is there" and says
+# nothing about whether the CONFIGURED role can reach it over TCP. When it
+# cannot, the answer otherwise arrives minutes later as a pool checkout
+# timeout that reads like a flaky test.
 db_check =
-  if Code.ensure_loaded?(PhoenixKit.TestSupport.PostgresPreflight) do
-    # One classified connection attempt, with the repo's OWN credentials and
-    # transport, before anything starts the pool.
-    #
-    # This replaces a `psql -lqt` listing. That check asked the wrong question:
-    # it ran as the shell's user over a unix socket, so it reported "the
-    # database is there" and said nothing about whether the CONFIGURED role
-    # could reach it over TCP. When it could not, the answer arrived minutes
-    # later as a pool checkout timeout that reads like a flaky test.
-    case PhoenixKit.TestSupport.PostgresPreflight.check(
-           Application.get_env(:phoenix_kit_hello_world, PhoenixKitHelloWorld.Test.Repo, [])
-         ) do
-      :ok ->
-        :exists
+  case PhoenixKit.TestSupport.PostgresPreflight.check(
+         Application.get_env(:phoenix_kit_hello_world, PhoenixKitHelloWorld.Test.Repo, [])
+       ) do
+    :ok ->
+      :exists
 
-      {:error, _reason, message} ->
-        IO.puts(:stderr, "\n" <> message)
-        :not_found
-    end
-  else
-    :try_connect
+    {:error, _reason, message} ->
+      IO.puts(:stderr, "\n" <> message)
+      :not_found
   end
 
 repo_available =
@@ -76,11 +57,10 @@ repo_available =
     try do
       {:ok, _} = PhoenixKitHelloWorld.Test.Repo.start_link()
 
-      # Build the schema by running core's versioned migrations directly.
-      # The previous hand-rolled `test/support/postgres/migrations/` shim
-      # recreated `phoenix_kit_settings`, `phoenix_kit_activities`, and
-      # the `uuid_generate_v7()` function — all owned by core's V03 /
-      # V40 / V90 migrations. Schema drift impossible by construction.
+      # Build the schema by running core's versioned migrations directly:
+      # `phoenix_kit_settings`, `phoenix_kit_activities`, the
+      # `uuid_generate_v7()` function and everything else core owns come
+      # from core's own chain, so the test schema cannot drift from it.
       PhoenixKit.Migration.ensure_current(PhoenixKitHelloWorld.Test.Repo, log: false)
 
       Ecto.Adapters.SQL.Sandbox.mode(PhoenixKitHelloWorld.Test.Repo, :manual)

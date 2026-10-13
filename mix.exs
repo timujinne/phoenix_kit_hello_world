@@ -20,7 +20,7 @@ defmodule PhoenixKitHelloWorld.MixProject do
       package: package(),
 
       # Dialyzer
-      dialyzer: [plt_add_apps: [:phoenix_kit, :mix]],
+      dialyzer: [plt_add_apps: [:phoenix_kit, :mix], ignore_warnings: ".dialyzer_ignore.exs"],
 
       # Docs
       name: "PhoenixKitHelloWorld",
@@ -31,7 +31,7 @@ defmodule PhoenixKitHelloWorld.MixProject do
 
   def application do
     [
-      extra_applications: [:logger, :phoenix_kit]
+      extra_applications: [:logger, :gettext, :phoenix_kit]
     ]
   end
 
@@ -98,6 +98,10 @@ defmodule PhoenixKitHelloWorld.MixProject do
       # LiveView is needed for the admin page.
       {:phoenix_live_view, "~> 1.1"},
 
+      # The module's own Gettext backend (PhoenixKitHelloWorld.Gettext); its
+      # catalogue ships in priv/gettext, which is why `priv` is in `files:`.
+      {:gettext, "~> 1.0"},
+
       # Optional: add ex_doc for generating documentation
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
 
@@ -114,7 +118,7 @@ defmodule PhoenixKitHelloWorld.MixProject do
     [
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib .formatter.exs mix.exs README.md CHANGELOG.md LICENSE)
+      files: ~w(lib priv .formatter.exs mix.exs README.md CHANGELOG.md LICENSE)
     ]
   end
 
