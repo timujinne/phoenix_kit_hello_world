@@ -245,7 +245,7 @@ The hub renders the tab LV with `live_render` and this session contract:
 | `current_user_uuid` | Viewer identity as a string uuid (identity only — never authorization) |
 | `locale` | Gettext locale to set on mount, when present |
 | `wrapper_class` | Class for the tab's outermost element; the hub passes `""` |
-| `mode`, `pubsub_topic`, `frame_ref` | The hub's emit contract: `mode` is `"navigate"`, `"emit"` or `"popup"`; a tab that never navigates or opens a dialog ignores all three |
+| `mode`, `pubsub_topic`, `frame_ref` | The hub's emit contract: `mode` is an atom — `:navigate`, `:emit` or `:popup`; a tab that never navigates or opens a dialog ignores all three |
 | `host_paths` | `%{"new_task" => path}` — the hub's own pages, so a tab can link to them without naming its routes |
 
 - **`can_write` comes from `permission_actions`.** The first action other than `:view` (here `:greet`) is the extension's write action; the hub resolves it for the viewer and passes the answer. A tab gates every mutating control *and* its handler on it, and treats anything but `true` as read-only.

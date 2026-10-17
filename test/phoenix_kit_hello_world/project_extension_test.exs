@@ -105,7 +105,7 @@ defmodule PhoenixKitHelloWorld.Web.ProjectHelloTabLiveTest do
         "locale" => "en",
         "wrapper_class" => "",
         "current_user_uuid" => @viewer,
-        "mode" => "navigate",
+        "mode" => :navigate,
         "pubsub_topic" => nil,
         "frame_ref" => nil,
         "host_paths" => %{"new_task" => "/en/admin/projects/#{@project}/assignments/new"}

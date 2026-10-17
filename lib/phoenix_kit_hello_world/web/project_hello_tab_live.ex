@@ -35,7 +35,7 @@ defmodule PhoenixKitHelloWorld.Web.ProjectHelloTabLive do
     * `"wrapper_class"` — the class for the tab's outermost element. The hub
       passes `""` because the project page already pads the content area.
     * `"mode"`, `"pubsub_topic"`, `"frame_ref"` — the hub's emit contract.
-      `mode` is `"navigate"` (default), `"emit"` or `"popup"`; in the last two
+      `mode` is an atom — `:navigate` (default), `:emit` or `:popup`; in the last two
       a tab reports saves and closes on `pubsub_topic` instead of navigating,
       echoing `frame_ref`. A tab that never navigates or opens a dialog can
       ignore all three, as this one does.
@@ -65,7 +65,7 @@ defmodule PhoenixKitHelloWorld.Web.ProjectHelloTabLive do
        current_user_uuid: session["current_user_uuid"],
        locale: session["locale"],
        wrapper_class: session["wrapper_class"] || "",
-       mode: session["mode"] || "navigate",
+       mode: session["mode"] || :navigate,
        host_paths: session["host_paths"] || %{},
        greetings: 0
      )}
