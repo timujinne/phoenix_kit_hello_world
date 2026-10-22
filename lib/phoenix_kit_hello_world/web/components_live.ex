@@ -23,34 +23,47 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
 
   ## Categories
 
-  - **Typography & feedback** — badges, `status_badge`, alerts, stat cards,
-    number formatter
+  - **Typography & feedback** — badges, `status_badge`, `status_dot`, alerts,
+    stat cards, `hero_stat_card`, number formatter
   - **Buttons & icons** — raw variants, `button`, `pk_link_button`
   - **Navigation** — `nav_tabs` (variants, `:trailing`), collapse and
-    `accordion`, `pk_link`
+    `accordion`, `pk_link`, `date_nav`
   - **Forms** — input, select, textarea, checkbox, `simple_form`,
-    `form_section` + `form_actions`, `search_picker`
+    `form_section` + `form_actions`, `section_header`, `decimal_input`,
+    `save_button`, `search_picker`
   - **Tables & lists** — raw table, `table_default` with `sort_header_cell`,
-    `search_toolbar` and `table_row_menu`, bulk selection, draggable list
+    `search_toolbar`, `sort_selector`, `table_row_menu` and `toolbar_primary`;
+    `tree_name_cell` and `row_link`; bulk selection with `bulk_actions_toolbar`;
+    `sortable_tbody`/`sortable_row` with drag handles; `column_settings_modal`
+    over `PhoenixKitWeb.TableColumns`; draggable list
+  - **Charts** — `line_chart`, `bar_chart`, `sparkline`, `chart_lanes`
   - **Modals & overlays** — `modal` (drawer placement, unsaved-input guard),
-    `confirm_modal`, `popover_panel`
-  - **Pagination** — raw join buttons, `pagination`, `load_more`
+    `confirm_modal`, `alert_modal`, `popover_panel`
+  - **Pagination** — raw join buttons, `pagination` with `pagination_info`
+    and `page_size_selector`, `load_more`
   - **Time & files** — time_ago, age_badge, file_size, file_mtime, page_status_badge
   - **Empty / loading states** — raw markup, `empty_state` (with `:cta`)
+  - **Layout** — when you need `admin_page_header` (this page does not: the
+    admin layout draws the header)
+
+  Components that need runtime context a template cannot supply (a user, an
+  upload, stored media, a record to translate) are listed in the last section
+  with what each one needs.
 
   ## Import pattern
 
-  `use PhoenixKitWeb, :live_view` imports every core component used on this
-  page, so there is not one explicit component import below. A LiveView that
-  does `use Phoenix.LiveView` directly imports what it uses:
+  `use PhoenixKitWeb, :live_view` imports almost every core component used on
+  this page. The few core keeps out of that list are imported explicitly at the
+  top — `date_nav`, `hero_stat_card`, `row_link` and `save_button`. A LiveView
+  that does `use Phoenix.LiveView` directly imports everything it uses:
 
       import PhoenixKitWeb.Components.Core.Icon, only: [icon: 1]
       import PhoenixKitWeb.Components.Core.Modal, only: [modal: 1, confirm_modal: 1]
 
   Every component and attribute on this page exists in the `phoenix_kit`
-  release this module's `mix.exs` floor names. Newer core releases add more —
-  `<.table_default fit>` with column priorities (core 2.54) and
-  `<.save_button>` (core 2.47); raise the floor before using either.
+  release this module's `mix.exs` floor names (2.63.0). Newer core releases may
+  add more — read the component's own `attr` declarations — and raising the
+  floor is part of the change that starts using one.
 
   ## Events from the client are input
 
@@ -71,19 +84,38 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
 
   require Logger
 
+  # Not in `use PhoenixKitWeb, :live_view`'s import list — core imports these
+  # only where a page asks for them (see each module's own docs).
+  import PhoenixKitWeb.Components.Core.DateNav, only: [date_nav: 1]
+  import PhoenixKitWeb.Components.Core.HeroStatCard, only: [hero_stat_card: 1]
+  import PhoenixKitWeb.Components.Core.RowLink, only: [row_link: 1]
+  import PhoenixKitWeb.Components.Core.SaveButton, only: [save_button: 1]
+
+  alias PhoenixKit.Utils.Number
   alias PhoenixKitHelloWorld.Paths
+  alias PhoenixKitWeb.Actor
+  alias PhoenixKitWeb.Components.Core.DateNav
+  alias PhoenixKitWeb.TableColumns
 
   @valid_demo_tabs ~w(overview activity settings)
+  @alert_types %{
+    "info" => :info,
+    "success" => :success,
+    "warning" => :warning,
+    "error" => :error
+  }
+  @page_sizes [10, 25, 50, 100]
+  @column_events ~w(add_column remove_column reorder_columns reset_columns)
 
   # Sample rows for the table, bulk-select and picker sections. Plain maps —
   # these components take whatever shape you hand them. Names, roles and
   # statuses are data, not copy, so they are not translated.
   @demo_people [
-    %{id: "alice", name: "Alice", role: "admin", status: "active"},
-    %{id: "bob", name: "Bob", role: "user", status: "active"},
-    %{id: "carol", name: "Carol", role: "user", status: "inactive"},
-    %{id: "dave", name: "Dave", role: "user", status: "pending"},
-    %{id: "erin", name: "Erin", role: "admin", status: "suspended"}
+    %{id: "alice", name: "Alice", role: "admin", status: "active", joined: "2024-03-12"},
+    %{id: "bob", name: "Bob", role: "user", status: "active", joined: "2024-07-01"},
+    %{id: "carol", name: "Carol", role: "user", status: "inactive", joined: "2025-01-20"},
+    %{id: "dave", name: "Dave", role: "user", status: "pending", joined: "2025-09-05"},
+    %{id: "erin", name: "Erin", role: "admin", status: "suspended", joined: "2026-02-14"}
   ]
 
   @people_by_id Map.new(@demo_people, &{&1.id, &1})
@@ -92,7 +124,27 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
   # `String.to_existing_atom/1` on the parameter.
   @sortable %{"name" => :name, "role" => :role, "status" => :status}
 
+  @sort_dirs %{"asc" => :asc, "desc" => :desc}
+
   @row_actions ~w(view archive)
+
+  # A small folder tree for `tree_name_cell`: `parent` nil is a root. Children
+  # come after their parent in the list; `tree_rows/3` walks it into the
+  # `{node, depth}` rows the table draws.
+  @demo_tree [
+    %{id: "docs", name: "Documents", parent: nil, folder?: true},
+    %{id: "docs-specs", name: "Specs", parent: "docs", folder?: true},
+    %{id: "docs-specs-api", name: "api.md", parent: "docs-specs", folder?: false},
+    %{id: "docs-readme", name: "README.md", parent: "docs", folder?: false},
+    %{id: "photos", name: "Photos", parent: nil, folder?: true},
+    %{id: "photos-trip", name: "trip.jpg", parent: "photos", folder?: false},
+    %{id: "notes", name: "notes.txt", parent: nil, folder?: false}
+  ]
+
+  @chart_values [12, 18, 15, 24, 21, 30, 27]
+
+  # The nodes that have children — the only ones a toggle may name.
+  @expandable_ids @demo_tree |> Enum.map(& &1.parent) |> Enum.reject(&is_nil/1) |> Enum.uniq()
 
   @impl true
   def mount(_params, _session, socket) do
@@ -124,17 +176,36 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
        last_row_action: nil,
        selected: MapSet.new(),
        bulk_result: nil,
-       picked: []
+       picked: [],
+       alert: nil,
+       tree_expanded: MapSet.new(["docs"]),
+       manual_people: @demo_people,
+       manual_result: nil,
+       show_columns: false,
+       per_page: 10,
+       measure_form: measure_form(%{"qty" => "2,5", "weight" => "1.25"}),
+       measure: measure_parse(%{"qty" => "2,5", "weight" => "1.25"}),
+       measure_dirty: false,
+       measure_saved: false,
+       today: Date.utc_today(),
+       date: Date.utc_today()
      )
-     |> assign_table_rows()}
+     |> assign(:columns, TableColumns.load(Actor.uuid(socket), columns_spec()))
+     |> assign_table_rows()
+     |> assign_tree_rows()}
   end
 
   # The `<.pagination>` showcase renders real `<.link patch>` targets pointing
   # back at this page, so clicking one round-trips through `handle_params/3`.
-  # There is nothing to read from the URL here — the demo pager is display-only
-  # — but the callback has to exist for the patch to resolve.
+  # The demo pager is display-only; the one URL parameter that matters is the
+  # day `<.date_nav>` keeps in `?date=`, parsed by core and clamped to today.
   @impl true
-  def handle_params(_params, _uri, socket), do: {:noreply, socket}
+  def handle_params(params, _uri, socket) do
+    today = socket.assigns.today
+
+    {:noreply,
+     assign(socket, :date, DateNav.parse_param(params["date"], today: today, max: today))}
+  end
 
   # ── Modal ────────────────────────────────────────────────────────
 
@@ -297,11 +368,13 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
 
   # ── Form section ─────────────────────────────────────────────────
 
-  def handle_event("validate_profile", %{"profile" => %{"display_name" => name}}, socket) do
+  def handle_event("validate_profile", %{"profile" => %{"display_name" => name}}, socket)
+      when is_binary(name) do
     {:noreply, assign(socket, :profile_form, profile_form(name))}
   end
 
-  def handle_event("save_profile", %{"profile" => %{"display_name" => name}}, socket) do
+  def handle_event("save_profile", %{"profile" => %{"display_name" => name}}, socket)
+      when is_binary(name) do
     {:noreply, assign(socket, profile_form: profile_form(name), profile_saved: String.trim(name))}
   end
 
@@ -329,6 +402,131 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
     end
   end
 
+  # ── Alert modal ──────────────────────────────────────────────────
+
+  def handle_event("open_alert", %{"type" => type}, socket) when is_map_key(@alert_types, type) do
+    {:noreply, assign(socket, :alert, Map.fetch!(@alert_types, type))}
+  end
+
+  def handle_event("close_alert", _, socket), do: {:noreply, assign(socket, :alert, nil)}
+
+  # ── Table: sort selector, page size ──────────────────────────────
+
+  # `<.sort_selector>` sends only the control that changed; the other half
+  # comes from the assigns, never from the DOM.
+  def handle_event("sort_form", params, socket) do
+    %{by: by, dir: dir} = socket.assigns.table_sort
+    by_param = params["sort_by"] || Atom.to_string(by)
+    dir_param = params["sort_dir"] || Atom.to_string(dir)
+
+    with %{^by_param => field} <- @sortable,
+         %{^dir_param => direction} <- @sort_dirs do
+      {:noreply,
+       socket |> assign(:table_sort, %{by: field, dir: direction}) |> assign_table_rows()}
+    else
+      _ -> {:noreply, socket}
+    end
+  end
+
+  def handle_event("change_per_page", %{"per_page" => value}, socket) when is_binary(value) do
+    case Integer.parse(value) do
+      {size, ""} when size in @page_sizes -> {:noreply, assign(socket, :per_page, size)}
+      _ -> {:noreply, socket}
+    end
+  end
+
+  # ── Table: tree rows ─────────────────────────────────────────────
+
+  def handle_event("toggle_node", %{"uuid" => id}, socket) when id in @expandable_ids do
+    expanded = socket.assigns.tree_expanded
+
+    expanded =
+      if MapSet.member?(expanded, id),
+        do: MapSet.delete(expanded, id),
+        else: MapSet.put(expanded, id)
+
+    {:noreply, socket |> assign(:tree_expanded, expanded) |> assign_tree_rows()}
+  end
+
+  # ── Table: manual order, bulk toolbar, columns ───────────────────
+
+  def handle_event("reorder_people", %{"ordered_ids" => ids}, socket) when is_list(ids) do
+    people = Map.new(socket.assigns.manual_people, &{&1.id, &1})
+
+    # Same rule as the draggable list: exactly a permutation of the rows shown.
+    if Enum.sort(ids) == Enum.sort(Map.keys(people)) do
+      {:noreply, assign(socket, :manual_people, Enum.map(ids, &Map.fetch!(people, &1)))}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  # Both toolbar buttons send the selected ids; the browser's list is input,
+  # so only ids the server knows are counted.
+  def handle_event("open_reorder", %{"uuids" => ids}, socket) when is_list(ids),
+    do: {:noreply, assign(socket, :manual_result, {:reorder, known_count(ids)})}
+
+  def handle_event("bulk_delete", %{"uuids" => ids}, socket) when is_list(ids),
+    do: {:noreply, assign(socket, :manual_result, {:delete, known_count(ids)})}
+
+  def handle_event("show_column_modal", _, socket),
+    do: {:noreply, assign(socket, :show_columns, true)}
+
+  def handle_event("hide_column_modal", _, socket),
+    do: {:noreply, assign(socket, :show_columns, false)}
+
+  # The modal's four editing events are answered by core: it validates the
+  # ids against the spec and saves the choice for the signed-in user.
+  def handle_event(event, params, socket) when event in @column_events do
+    {:noreply, TableColumns.handle_event(event, params, socket, columns_spec(), :columns)}
+  end
+
+  # ── Form extras ──────────────────────────────────────────────────
+
+  # The form's own two fields, as text: a map or a list in their place is a
+  # crafted push and falls through to the catch-all.
+  def handle_event(
+        "validate_measure",
+        %{"measure" => %{"qty" => qty, "weight" => weight}},
+        socket
+      )
+      when is_binary(qty) and is_binary(weight) do
+    params = %{"qty" => qty, "weight" => weight}
+
+    {:noreply,
+     assign(socket,
+       measure_form: measure_form(params),
+       measure: measure_parse(params),
+       measure_dirty: true,
+       measure_saved: false
+     )}
+  end
+
+  # Saving needs numbers the server could read: text it refused stays unsaved.
+  def handle_event("save_measure", %{"measure" => %{"qty" => qty, "weight" => weight}}, socket)
+      when is_binary(qty) and is_binary(weight) do
+    params = %{"qty" => qty, "weight" => weight}
+    measure = measure_parse(params)
+    valid? = match?({:ok, _}, measure.qty) and match?({:ok, _}, measure.weight)
+
+    {:noreply,
+     assign(socket,
+       measure_form: measure_form(params),
+       measure: measure,
+       measure_dirty: not valid?,
+       measure_saved: valid?
+     )}
+  end
+
+  # ── Date navigation ──────────────────────────────────────────────
+
+  # The date picker only reaches the server inside a form, so it sends an
+  # event; the page answers with a patch and the URL stays the one source.
+  def handle_event("date_nav_pick", %{"date" => value}, socket) do
+    date = DateNav.parse_param(value, today: socket.assigns.today, max: socket.assigns.today)
+    {:noreply, push_patch(socket, to: "#{Paths.components()}?date=#{date}")}
+  end
+
   # Everything the clauses above did not match: a known event carrying a
   # value outside its whitelist or a payload of the wrong shape (a stale page,
   # a crafted push), and the demo forms' "noop". Ignored rather than crashed
@@ -353,6 +551,52 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
 
   defp note_form(text), do: to_form(%{"text" => text}, as: :note)
   defp profile_form(name), do: to_form(%{"display_name" => name}, as: :profile)
+
+  defp known_count(ids),
+    do: ids |> Enum.filter(&is_map_key(@people_by_id, &1)) |> Enum.uniq() |> length()
+
+  defp blank_name?(profile_form), do: String.trim(profile_form[:display_name].value || "") == ""
+
+  defp measure_form(params), do: to_form(params, as: :measure)
+
+  # What the server makes of the typed text: `parse_decimal/2` takes a comma
+  # or a dot and refuses anything else.
+  defp measure_parse(params) do
+    %{
+      qty: Number.parse_decimal(params["qty"], min: 0),
+      weight: Number.parse_decimal(params["weight"], min: 0)
+    }
+  end
+
+  # The optional columns of the manual-order table; Name and the row handle
+  # are always on, so they are not in the catalog.
+  defp columns_spec do
+    %{
+      key: "hello_world.components_demo_people",
+      columns: [
+        %{id: "role", label: fn -> gettext("Role") end},
+        %{id: "status", label: fn -> gettext("Status") end},
+        %{id: "joined", label: fn -> gettext("Joined") end}
+      ],
+      defaults: ["role", "status"]
+    }
+  end
+
+  # The tree walked into `{node, depth}` rows in display order, the children
+  # of a collapsed node skipped.
+  defp assign_tree_rows(socket) do
+    assign(socket, :tree_rows, tree_rows(socket.assigns.tree_expanded))
+  end
+
+  defp tree_rows(expanded, parent \\ nil, depth \\ 0) do
+    for node <- @demo_tree, node.parent == parent do
+      [{node, depth}] ++
+        if MapSet.member?(expanded, node.id),
+          do: tree_rows(expanded, node.id, depth + 1),
+          else: []
+    end
+    |> Enum.concat()
+  end
 
   # Same column again flips the direction; a new column starts ascending.
   defp next_sort(%{by: field, dir: :asc}, field), do: %{by: field, dir: :desc}
@@ -391,9 +635,11 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
 
       <.button_section />
       <.status_badge_section />
+      <.status_dot_section />
       <.collapsible_section />
       <.nav_tabs_section active_tab={@active_tab} />
       <.stat_card_section />
+      <.hero_stat_card_section />
       <.number_formatter_section />
       <.time_display_section />
       <.file_display_section />
@@ -401,6 +647,12 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
       <.pk_links_section />
       <.form_helpers_section demo_form={@demo_form} />
       <.form_section_section profile_form={@profile_form} profile_saved={@profile_saved} />
+      <.form_extras_section
+        form={@measure_form}
+        measure={@measure}
+        dirty={@measure_dirty}
+        saved={@measure_saved}
+      />
       <.modals_section
         show_modal={@show_modal}
         placement={@modal_placement}
@@ -409,6 +661,7 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         saved_note={@saved_note}
         show_confirm={@show_confirm}
         counter={@counter}
+        alert={@alert}
       />
       <.popover_panel_section counter={@counter} />
       <.table_default_section
@@ -417,11 +670,21 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         search={@table_search}
         last_row_action={@last_row_action}
       />
+      <.tree_table_section rows={@tree_rows} expanded={@tree_expanded} />
+      <.manual_table_section
+        people={@manual_people}
+        columns={@columns}
+        show_columns={@show_columns}
+        result={@manual_result}
+      />
       <.bulk_select_section people={@demo_people} selected={@selected} bulk_result={@bulk_result} />
       <.search_picker_section picked={@picked} />
-      <.pagination_component_section />
+      <.pagination_component_section per_page={@per_page} />
       <.empty_state_section />
       <.draggable_list_section items={@draggable_items} />
+      <.charts_section />
+      <.date_nav_section date={@date} today={@today} />
+      <.admin_page_header_section />
 
       <.section_divider label={gettext("Context-dependent components")} />
 
@@ -877,12 +1140,75 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         <.status_badge status="active" size={:lg} />
         <.status_badge status="something_else" />
       </div>
+      <%!-- The typed badges of badge.ex take what their domain has, not a
+           status string: a role map, two user fields, a code map, a category
+           string, an enabled boolean. --%>
+      <p class="text-xs text-base-content/60 mt-4 mb-2">
+        {gettext("Typed badges — each takes the data of its own domain:")}
+      </p>
+      <div class="flex flex-wrap items-center gap-2" id="demo-typed-badges">
+        <.role_badge role={%{name: "Owner", is_system_role: true}} size={:sm} />
+        <.role_badge role={%{name: "Editor", is_system_role: false}} size={:sm} />
+        <.user_status_badge is_active={true} confirmed_at={~U[2026-01-01 00:00:00Z]} size={:sm} />
+        <.user_status_badge is_active={true} confirmed_at={nil} size={:sm} />
+        <.user_status_badge is_active={false} size={:sm} />
+        <.code_status_badge
+          code={%{number_of_uses: 1, max_uses: 5, expiration_date: nil}}
+          size={:sm}
+        />
+        <.code_status_badge
+          code={%{number_of_uses: 5, max_uses: 5, expiration_date: nil}}
+          size={:sm}
+        />
+        <.category_badge category="system" />
+        <.category_badge category="marketing" />
+        <.category_badge category="transactional" />
+        <.enabled_badge enabled={true} />
+        <.enabled_badge enabled={false} />
+      </div>
       <:snippet>
         <code>{~s|<.status_badge status={item.status} />|}</code>
         <code>{~s|<.status_badge status="in_progress" size={:xs} />|}</code>
+        <code>{~s|<.role_badge role={user.role} size={:sm} />|}</code>
+        <code>{~s|<.user_status_badge is_active={user.is_active} confirmed_at={user.confirmed_at} />|}</code>
+        <code>{~s|<.code_status_badge code={referral_code} />|}</code>
+        <code>{~s|<.category_badge category="marketing" />|}</code>
+        <code>{~s|<.enabled_badge enabled={endpoint.enabled} />|}</code>
         <p class="text-xs text-base-content/50">
           {gettext(
-            "An unknown status renders as a neutral badge rather than raising. The label is the status string with underscores as spaces."
+            "An unknown status renders as a neutral badge rather than raising. The label is the status string with underscores as spaces. The typed badges take what their domain has: a role map with name and is_system_role, the two user fields is_active and confirmed_at, a referral-code map with number_of_uses, max_uses and expiration_date, a category string, an enabled boolean."
+          )}
+        </p>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
+  defp status_dot_section(assigns) do
+    ~H"""
+    <.showcase_section
+      title={gettext("Status dot")}
+      description={
+        gettext(
+          "A coloured dot with an optional label, for online or offline, connected, syncing — the little circle that keeps being hand-rolled."
+        )
+      }
+    >
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2" id="demo-status-dots">
+        <.status_dot variant={:success} label={gettext("online")} />
+        <.status_dot variant={:error} label={gettext("offline")} />
+        <.status_dot variant={:warning} label={gettext("degraded")} />
+        <.status_dot variant={:info} label={gettext("syncing")} pulse />
+        <.status_dot variant={:neutral} label={gettext("idle")} size={:sm} />
+        <.status_dot up={true} label={gettext("up is true")} />
+      </div>
+      <:snippet>
+        <code>{~s|<.status_dot variant={:success} label="online" />|}</code>
+        <code>{~s|<.status_dot variant={:info} label="syncing" pulse />|}</code>
+        <code>{~s|<.status_dot up={@device.online} label={if @device.online, do: "online", else: "offline"} />|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext(
+            "The default announced state is generic (online, offline); for a payment or a job pass state_label so a screen reader hears what it is."
           )}
         </p>
       </:snippet>
@@ -1034,6 +1360,48 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
       </div>
       <:snippet>
         <code>{~s|<.stat_card value={42} title="Users" subtitle="..." color="primary"><:icon>...</:icon></.stat_card>|}</code>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
+  defp hero_stat_card_section(assigns) do
+    assigns =
+      assign(assigns,
+        people_count: length(@demo_people),
+        admin_count: Enum.count(@demo_people, &(&1.role == "admin"))
+      )
+
+    ~H"""
+    <.showcase_section
+      title={gettext("Hero stat card")}
+      description={gettext("A large card for the one or two numbers a dashboard leads with.")}
+    >
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="demo-hero-stats">
+        <.hero_stat_card
+          value={@people_count}
+          title={gettext("People")}
+          subtitle={gettext("In the sample table above")}
+        >
+          <:icon><.icon name="hero-users" class="w-6 h-6" /></:icon>
+        </.hero_stat_card>
+        <.hero_stat_card
+          value={@admin_count}
+          title={gettext("Administrators")}
+          subtitle={gettext("A link to the report behind the number")}
+          navigate={Paths.components()}
+        >
+          <:icon><.icon name="hero-shield-check" class="w-6 h-6" /></:icon>
+        </.hero_stat_card>
+      </div>
+      <:snippet>
+        <code>{~s|import PhoenixKitWeb.Components.Core.HeroStatCard, only: [hero_stat_card: 1]|}</code>
+        <code>{~s|<.hero_stat_card value={@count} title="People" subtitle="Registered" navigate={Paths.people()}>|}</code>
+        <code>{~s|  <:icon><.icon name="hero-users" class="w-6 h-6" /></:icon>|}</code>
+        <code>{~s|</.hero_stat_card>|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext("With navigate the whole card is a link; pass a path already built through Paths.")}
+        </p>
       </:snippet>
     </.showcase_section>
     """
@@ -1271,7 +1639,12 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         </.form_section>
         <.form_actions
           cancel_click="reset_profile"
-          submit_label={gettext("Save profile")}
+          submit_label={
+            if blank_name?(@profile_form),
+              do: gettext("Enter a name to save"),
+              else: gettext("Save profile")
+          }
+          submit_disabled={blank_name?(@profile_form)}
           submit_icon="hero-check"
         />
       </.form>
@@ -1284,17 +1657,94 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         <code>{~s|    <:subtitle>Shown next to everything you post.</:subtitle>|}</code>
         <code>{~s|    <.input field={@form[:display_name]} label="Display name" />|}</code>
         <code>{~s|  </.form_section>|}</code>
-        <code>{~s|  <.form_actions cancel_to={Paths.index()} submit_label="Save" submit_icon="hero-check" />|}</code>
+        <code>{~s|  <.form_actions cancel_to={Paths.index()} submit_label={if @valid?, do: "Save", else: "Enter a name to save"}|}</code>
+        <code>{~s|    submit_disabled={not @valid?} submit_icon="hero-check" />|}</code>
         <code>{~s|</.form>|}</code>
         <p class="text-xs text-base-content/50">
           {gettext(
-            "Cancel is a link with cancel_to, an event with cancel_click (add cancel_target inside a LiveComponent), or your own markup in the cancel slot — one of the three."
+            "Cancel is a link with cancel_to, an event with cancel_click (add cancel_target inside a LiveComponent), or your own markup in the cancel slot — one of the three. submit_disabled greys the submit button; say why in submit_label, as the empty name does here."
           )}
         </p>
       </:snippet>
     </.showcase_section>
     """
   end
+
+  attr(:form, :any, required: true)
+  attr(:measure, :map, required: true)
+  attr(:dirty, :boolean, required: true)
+  attr(:saved, :boolean, required: true)
+
+  defp form_extras_section(assigns) do
+    ~H"""
+    <.showcase_section
+      title={gettext("Form extras — section_header, decimal_input, save_button")}
+      description={
+        gettext(
+          "A quieter section heading for fields inside one card, a number field that accepts a comma and a dot, and a Save button that says whether there is anything to save."
+        )
+      }
+    >
+      <.form
+        for={@form}
+        id="demo-measure-form"
+        phx-change="validate_measure"
+        phx-submit="save_measure"
+        phx-auto-recover="recover"
+        class="flex flex-col gap-3 max-w-md"
+      >
+        <.section_header icon="hero-scale" title={gettext("Measurements")}>
+          <:actions>
+            <span class="text-xs text-base-content/50">{gettext("comma or dot")}</span>
+          </:actions>
+        </.section_header>
+        <.decimal_input field={@form[:qty]} label={gettext("Quantity")} />
+        <.decimal_input field={@form[:weight]} label={gettext("Weight")} unit="kg" />
+        <.save_button dirty={@dirty} saved={@saved} />
+      </.form>
+      <ul class="text-sm mt-3 flex flex-col gap-1" id="demo-measure-parsed">
+        <li>{gettext("Quantity:")} {measure_text(@measure.qty)}</li>
+        <li>{gettext("Weight:")} {measure_text(@measure.weight)}</li>
+      </ul>
+      <div class="mt-4">
+        <p class="text-xs text-base-content/60 mb-1">
+          {gettext("bare — the control alone, as an item of your own group:")}
+        </p>
+        <div class="join">
+          <.decimal_input
+            bare
+            id="demo-bare-qty"
+            name="bare_qty"
+            value="3"
+            label={gettext("Pieces")}
+            class="join-item w-24 text-center"
+          />
+          <span class="btn join-item pointer-events-none">{gettext("pcs")}</span>
+        </div>
+      </div>
+      <:snippet>
+        <code>{~s|<.section_header icon="hero-scale" title="Measurements"><:actions>...</:actions></.section_header>|}</code>
+        <code>{~s|<.decimal_input field={@form[:qty]} label="Quantity" />|}</code>
+        <code>{~s|<.decimal_input field={@form[:weight]} label="Weight" unit="kg" />|}</code>
+        <code>{~s|<.decimal_input bare name="qty" value={@qty} class="join-item w-20" />|}</code>
+        <code>{~s|import PhoenixKitWeb.Components.Core.SaveButton, only: [save_button: 1]|}</code>
+        <code>{~s|<.save_button dirty={@dirty} saved={@saved} />|}</code>
+        <code>{~s|case PhoenixKit.Utils.Number.parse_decimal(params["qty"], min: 0) do {:ok, qty} -> ...; {:error, reason} -> ... end|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext(
+            "decimal_input renders a text field, so the server decides what the text means: parse_decimal takes a comma or a dot and refuses the rest. save_button only draws; the form keeps the dirty and saved flags, and needs phx-auto-recover so a reconnect does not mark it unsaved."
+          )}
+        </p>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
+  defp measure_text({:ok, decimal}), do: Decimal.to_string(decimal, :normal)
+  defp measure_text({:error, :empty}), do: gettext("empty")
+  defp measure_text({:error, :below_min}), do: gettext("below the minimum")
+  defp measure_text({:error, :above_max}), do: gettext("above the maximum")
+  defp measure_text({:error, _reason}), do: gettext("not a number")
 
   attr(:show_modal, :boolean, required: true)
   attr(:placement, :atom, required: true)
@@ -1303,6 +1753,7 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
   attr(:saved_note, :string, default: nil)
   attr(:show_confirm, :boolean, required: true)
   attr(:counter, :integer, required: true)
+  attr(:alert, :atom, default: nil)
 
   defp modals_section(assigns) do
     ~H"""
@@ -1328,6 +1779,21 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         </button>
         <button type="button" phx-click="open_confirm" class="btn btn-error btn-sm">
           {gettext("Open confirm (counter: %{count})", count: @counter)}
+        </button>
+        <button
+          :for={{type, label} <- [
+                info: gettext("Info alert"),
+                success: gettext("Success alert"),
+                warning: gettext("Warning alert"),
+                error: gettext("Error alert")
+              ]}
+          type="button"
+          id={"demo-alert-#{type}"}
+          phx-click="open_alert"
+          phx-value-type={type}
+          class="btn btn-outline btn-sm"
+        >
+          {label}
         </button>
       </div>
       <p :if={@saved_note} class="text-sm mt-3" id="demo-saved-note">
@@ -1383,6 +1849,14 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         on_cancel="cancel_confirm"
       />
 
+      <%!-- The acknowledge-only modal: one message, one OK button. --%>
+      <.alert_modal
+        show={@alert != nil}
+        on_close="close_alert"
+        type={@alert || :info}
+        message={alert_message(@alert)}
+      />
+
       <:snippet>
         <code>{~s|<.modal id="note-modal" show={@show} on_close="close_modal" placement={:end}|}</code>
         <code>{~s|  closeable={not @dirty} close_guard={:input}>|}</code>
@@ -1391,6 +1865,7 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         <code>{~s|  <:actions><button type="submit" form="note-form" class="btn btn-primary">Save</button></:actions>|}</code>
         <code>{~s|</.modal>|}</code>
         <code>{~s|<.confirm_modal show={@show} title="..." prompt="..." on_confirm="..." on_cancel="..." />|}</code>
+        <code>{~s|<.alert_modal show={@alert != nil} on_close="close_alert" type={:warning} message="Quota almost used." />|}</code>
         <p class="text-xs text-base-content/50">
           {gettext(
             "The submit button lives in the actions slot, outside the form, and is tied to it by the form attribute. Never build a modal from a raw dialog element with the modal-open class: it is not in the top layer, so it has no focus trap and Esc does nothing."
@@ -1400,6 +1875,13 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
     </.showcase_section>
     """
   end
+
+  defp alert_message(:warning),
+    do: gettext("This is a warning: the action is allowed, but check it first.")
+
+  defp alert_message(:success), do: gettext("This is a success: the action went through.")
+  defp alert_message(:error), do: gettext("This is an error: the action did not go through.")
+  defp alert_message(_info_or_nil), do: gettext("This is a notice. Press OK to acknowledge it.")
 
   attr(:counter, :integer, required: true)
 
@@ -1492,6 +1974,20 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
             {ngettext("%{count} person", "%{count} people", length(@rows))}
           </span>
         </:toolbar_actions>
+        <:toolbar_primary>
+          <.button size="sm" phx-click="noop">
+            <.icon name="hero-plus" class="w-4 h-4" /> {gettext("New person")}
+          </.button>
+        </:toolbar_primary>
+        <:sort_bar>
+          <.sort_selector
+            id="demo-sort-selector"
+            sort_by={@sort.by}
+            sort_dir={@sort.dir}
+            options={[name: gettext("Name"), role: gettext("Role"), status: gettext("Status")]}
+            label
+          />
+        </:sort_bar>
         <.table_default_header>
           <.table_default_row>
             <.sort_header_cell field={:name} sort={@sort}>{gettext("Name")}</.sort_header_cell>
@@ -1543,6 +2039,8 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
       <:snippet>
         <code>{~s|<.table_default id="people" toggleable items={@people} item_id={& &1.uuid} card_title={& &1.name}>|}</code>
         <code>{~s|  <:toolbar_title><.search_toolbar value={@search} on_change="search" /></:toolbar_title>|}</code>
+        <code>{~s|  <:toolbar_primary><.button size="sm" navigate={Paths.new_person()}>New person</.button></:toolbar_primary>|}</code>
+        <code>{~s|  <:sort_bar><.sort_selector sort_by={@sort.by} sort_dir={@sort.dir} options={[name: "Name"]} /></:sort_bar>|}</code>
         <code>{~s|  <.table_default_header><.table_default_row>|}</code>
         <code>{~s|    <.sort_header_cell field={:name} sort={@sort}>Name</.sort_header_cell>|}</code>
         <code>{~s|  </.table_default_row></.table_default_header>|}</code>
@@ -1561,7 +2059,7 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         <code>{~s|def handle_event("toggle_sort", %{"by" => by}, socket)  # map `by` through a fixed whitelist|}</code>
         <p class="text-xs text-base-content/50">
           {gettext(
-            "sort is a map with by and dir; a header click sends toggle_sort with the field name. The search box sends its event with the text under the search key, debounced. The card and table toggle is remembered in the browser."
+            "sort is a map with by and dir; a header click sends toggle_sort with the field name. The sort selector above the table sends sort_form with only the control that changed — read the other half from your assigns. The search box sends its event with the text under the search key, debounced. toolbar_primary holds the page's create button in the far-right corner. The card and table toggle is remembered in the browser."
           )}
         </p>
       </:snippet>
@@ -1573,6 +2071,233 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
 
   defp row_action_text({"archive", name}),
     do: gettext("Archived %{name} (a demo: nothing changed).", name: name)
+
+  attr(:rows, :list, required: true)
+  attr(:expanded, :any, required: true)
+
+  defp tree_table_section(assigns) do
+    assigns = assign(assigns, :people, @demo_people)
+
+    ~H"""
+    <.showcase_section
+      title={gettext("Table — tree rows and clickable rows")}
+      description={
+        gettext(
+          "Two cell-level pieces for a table_default. tree_name_cell turns the name cell into a collapsible tree row; row_link makes a whole row one real link."
+        )
+      }
+    >
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div id="demo-tree">
+          <p class="text-xs text-base-content/60 mb-2">
+            {gettext("tree_name_cell — you walk the data into {node, depth} rows and keep the expanded set.")}
+          </p>
+          <.table_default id="demo-tree-table" size="sm">
+            <.table_default_header>
+              <.table_default_row>
+                <.table_default_header_cell>{gettext("Name")}</.table_default_header_cell>
+              </.table_default_row>
+            </.table_default_header>
+            <.table_default_body>
+              <.table_default_row :for={{node, depth} <- @rows} id={"demo-tree-#{node.id}"}>
+                <.tree_name_cell
+                  depth={depth}
+                  expandable={expandable?(node.id)}
+                  expanded={MapSet.member?(@expanded, node.id)}
+                  toggle_event="toggle_node"
+                  value={node.id}
+                  toggle_label={gettext("Expand or collapse %{name}", name: node.name)}
+                  icon={if node.folder?, do: "hero-folder", else: "hero-document-text"}
+                  icon_class={node.folder? && "w-4 h-4 text-warning shrink-0"}
+                >
+                  {node.name}
+                </.tree_name_cell>
+              </.table_default_row>
+            </.table_default_body>
+          </.table_default>
+        </div>
+
+        <div>
+          <p class="text-xs text-base-content/60 mb-2">
+            {gettext("row_link — click anywhere on a row. Its menu stays clickable above the link.")}
+          </p>
+          <.table_default id="demo-row-link-table" size="sm">
+            <.table_default_header>
+              <.table_default_row>
+                <.table_default_header_cell>{gettext("Name")}</.table_default_header_cell>
+                <.table_default_header_cell class="w-10" />
+              </.table_default_row>
+            </.table_default_header>
+            <.table_default_body>
+              <%!-- `relative transform-gpu` on the row: the link paints an overlay
+                   across it, and Safari ignores `relative` on a <tr> without it. --%>
+              <.table_default_row
+                :for={person <- @people}
+                id={"demo-linked-#{person.id}"}
+                class="relative transform-gpu cursor-pointer hover:bg-base-200"
+              >
+                <.table_default_cell>
+                  <.row_link
+                    navigate={Paths.components()}
+                    label={gettext("Open %{name}", name: person.name)}
+                  />
+                  {person.name}
+                </.table_default_cell>
+                <.table_default_cell class="relative z-10">
+                  <.table_row_menu id={"demo-linked-menu-#{person.id}"} label={gettext("Actions")}>
+                    <.table_row_menu_link
+                      navigate={Paths.events()}
+                      icon="hero-clock"
+                      label={gettext("Open events")}
+                    />
+                  </.table_row_menu>
+                </.table_default_cell>
+              </.table_default_row>
+            </.table_default_body>
+          </.table_default>
+        </div>
+      </div>
+      <:snippet>
+        <code>{~s|<.tree_name_cell depth={depth} expandable={node.children != []} expanded={MapSet.member?(@expanded, node.uuid)}|}</code>
+        <code>{~s|  toggle_event="toggle_node" value={node.uuid} icon="hero-folder">{node.name}</.tree_name_cell>|}</code>
+        <code>{~s|def handle_event("toggle_node", %{"uuid" => uuid}, socket)  # only ids you rendered as expandable|}</code>
+        <code>{~s|import PhoenixKitWeb.Components.Core.RowLink, only: [row_link: 1]|}</code>
+        <code>{~s|<.table_default_row class="relative transform-gpu cursor-pointer">|}</code>
+        <code>{~s|  <.table_default_cell><.row_link navigate={Paths.show(item)} label="Open item" />{item.name}</.table_default_cell>|}</code>
+        <code>{~s|  <.table_default_cell class="relative z-10"><.table_row_menu ...>...</.table_row_menu></.table_default_cell>|}</code>
+        <code>{~s|</.table_default_row>|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext(
+            "The tree walk and the expanded set are yours: skip the children of a collapsed node when you build the rows. row_link is not in the global import list; every control in the row that must stay clickable needs relative z-10."
+          )}
+        </p>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
+  defp expandable?(id), do: id in @expandable_ids
+
+  attr(:people, :list, required: true)
+  attr(:columns, :list, required: true)
+  attr(:show_columns, :boolean, required: true)
+  attr(:result, :any, default: nil)
+
+  defp manual_table_section(assigns) do
+    assigns = assign(assigns, :spec, columns_spec())
+
+    ~H"""
+    <.showcase_section
+      title={gettext("Table — manual order, columns and bulk toolbar")}
+      description={
+        gettext(
+          "One table with the pieces a managed list needs: drag handles with sortable rows, a bulk selection toolbar with the page's primary action, and a column editor that remembers each user's choice."
+        )
+      }
+    >
+      <.bulk_select_scope id="demo-manual-scope" total_count={length(@people)}>
+        <.bulk_actions_toolbar
+          on_open_reorder="open_reorder"
+          on_bulk_delete="bulk_delete"
+          reorder_gate={:multi}
+        >
+          <:leading>
+            <button type="button" phx-click="show_column_modal" class="btn btn-sm btn-ghost" id="demo-columns-open">
+              <.icon name="hero-view-columns" class="w-4 h-4" /> {gettext("Columns")}
+            </button>
+          </:leading>
+          <:primary>
+            <.button size="sm" phx-click="noop">
+              <.icon name="hero-plus" class="w-4 h-4" /> {gettext("New person")}
+            </.button>
+          </:primary>
+        </.bulk_actions_toolbar>
+
+        <.table_default id="demo-manual-table" size="sm">
+          <.table_default_header>
+            <.table_default_row>
+              <.drag_handle_header_cell />
+              <.bulk_select_header_cell
+                id="demo-manual-select-all"
+                aria_label={gettext("Select all people")}
+              />
+              <.table_default_header_cell>{gettext("Name")}</.table_default_header_cell>
+              <.table_default_header_cell :for={id <- @columns}>
+                {column_label(@spec, id)}
+              </.table_default_header_cell>
+            </.table_default_row>
+          </.table_default_header>
+          <.sortable_tbody id="demo-manual-body" event="reorder_people">
+            <.sortable_row :for={person <- @people} item_id={person.id} id={"demo-manual-#{person.id}"}>
+              <.drag_handle_cell />
+              <.bulk_select_cell value={person.id} />
+              <.table_default_cell>{person.name}</.table_default_cell>
+              <.table_default_cell :for={id <- @columns}>
+                <.status_badge :if={id == "status"} status={person.status} size={:xs} />
+                <span :if={id == "role"} class="badge badge-ghost badge-xs">{person.role}</span>
+                <span :if={id == "joined"} class="text-sm text-base-content/70">{person.joined}</span>
+              </.table_default_cell>
+            </.sortable_row>
+          </.sortable_tbody>
+        </.table_default>
+      </.bulk_select_scope>
+
+      <p class="text-xs text-base-content/60 mt-2" id="demo-manual-order">
+        {gettext("Order:")} {Enum.map_join(@people, ", ", & &1.name)}
+      </p>
+      <p :if={@result} class="text-sm mt-1" id="demo-manual-result">{manual_result_text(@result)}</p>
+
+      <.column_settings_modal
+        show={@show_columns}
+        columns={@spec.columns}
+        selected={@columns}
+      />
+      <:snippet>
+        <code>{~s|<.bulk_select_scope id="people-bulk" total_count={length(@people)}>|}</code>
+        <code>{~s|  <.bulk_actions_toolbar on_open_reorder="open_reorder" on_bulk_delete="bulk_delete" reorder_gate={:multi}>|}</code>
+        <code>{~s|    <:primary><.button size="sm" navigate={Paths.new_person()}>New person</.button></:primary>|}</code>
+        <code>{~s|  </.bulk_actions_toolbar>|}</code>
+        <code>{~s|  <.table_default id="people"> ... <.drag_handle_header_cell /> <.bulk_select_header_cell id="all" /> ...|}</code>
+        <code>{~s|    <.sortable_tbody id="people-body" event="reorder_people">|}</code>
+        <code>{~s|      <.sortable_row :for={p <- @people} item_id={p.uuid}><.drag_handle_cell /><.bulk_select_cell value={p.uuid} /> ...</.sortable_row>|}</code>
+        <code>{~s|    </.sortable_tbody>|}</code>
+        <code>{~s|  </.table_default>|}</code>
+        <code>{~s|</.bulk_select_scope>|}</code>
+        <code>{~s|<.column_settings_modal show={@show_columns} columns={spec().columns} selected={@columns} />|}</code>
+        <code>{~s|def handle_event(event, params, socket) when event in ~w(add_column remove_column reorder_columns reset_columns) do|}</code>
+        <code>{~s|  {:noreply, PhoenixKitWeb.TableColumns.handle_event(event, params, socket, spec(), :columns)}|}</code>
+        <code>{~s|end|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext(
+            "Name and the row handle are always on, so they are not in the column catalog. TableColumns saves a signed-in user's choice (their view preferences), and Reset takes it back out so they follow the default again. A table_default also takes its own toolbar_primary slot; the bulk toolbar's primary slot plays the same role. The reorder ids, like every id a handler gets, are checked against the rows you rendered."
+          )}
+        </p>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
+  defp column_label(spec, id) do
+    spec.columns
+    |> Enum.find(&(&1.id == id))
+    |> then(fn column -> column.label.() end)
+  end
+
+  defp manual_result_text({:reorder, count}),
+    do:
+      ngettext(
+        "Reorder asked for %{count} selected person (a demo: nothing changed).",
+        "Reorder asked for %{count} selected people (a demo: nothing changed).",
+        count
+      )
+
+  defp manual_result_text({:delete, count}),
+    do:
+      ngettext(
+        "Delete asked for %{count} selected person (a demo: nothing changed).",
+        "Delete asked for %{count} selected people (a demo: nothing changed).",
+        count
+      )
 
   attr(:people, :list, required: true)
   attr(:selected, :any, required: true)
@@ -1775,8 +2500,20 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
     """
   end
 
+  attr(:per_page, :integer, required: true)
+
   defp pagination_component_section(assigns) do
-    assigns = assign(assigns, :self_path, Paths.components())
+    total = 47
+    total_pages = max(div(total + assigns.per_page - 1, assigns.per_page), 1)
+
+    assigns =
+      assign(assigns,
+        self_path: Paths.components(),
+        total: total,
+        total_pages: total_pages,
+        page: min(2, total_pages),
+        page_sizes: @page_sizes
+      )
 
     ~H"""
     <.showcase_section
@@ -1787,7 +2524,21 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         )
       }
     >
-      <.pagination current_page={2} total_pages={5} base_path={@self_path} params={%{"demo" => "1"}} />
+      <.pagination
+        current_page={@page}
+        total_pages={@total_pages}
+        base_path={@self_path}
+        params={%{"demo" => "1"}}
+      />
+      <div class="flex flex-wrap items-center justify-between gap-3 mt-3">
+        <.pagination_info
+          page={@page}
+          per_page={@per_page}
+          total_count={@total}
+          noun_plural={gettext("people")}
+        />
+        <.page_size_selector id="demo-page-size" value={@per_page} options={@page_sizes} />
+      </div>
 
       <p class="text-xs text-base-content/60 mt-2">
         {gettext(
@@ -1797,9 +2548,13 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
       <:snippet>
         <code>{~s|<.pagination current_page={@page} total_pages={@total_pages}|}</code>
         <code>{~s|  base_path={Paths.items()} params={%{"search" => @search}} />|}</code>
+        <code>{~s|<.pagination_info page={@page} per_page={@per_page} total_count={@total} noun_plural="people" />|}</code>
+        <code>{~s|<.page_size_selector value={@per_page} on_change="change_per_page" />|}</code>
         <code>{~s|<.load_more id="items" loaded={@loaded} total={@total} infinite />|}</code>
         <p class="text-xs text-base-content/50">
-          {gettext("pagination renders patch links, so the page needs a handle_params callback.")}
+          {gettext(
+            "pagination renders patch links, so the page needs a handle_params callback. A real list keeps the page size in the URL and resets to page 1 when it changes (core's UrlState does both); this demo holds it in assigns."
+          )}
         </p>
       </:snippet>
     </.showcase_section>
@@ -1907,6 +2662,183 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
     """
   end
 
+  defp charts_section(assigns) do
+    assigns =
+      assign(assigns,
+        points: Enum.with_index(@chart_values, fn value, day -> {day, value} end),
+        bars:
+          Enum.with_index(@chart_values, fn value, day ->
+            %{label: "D#{day + 1}", value: value}
+          end),
+        lanes: [
+          %{
+            id: "release",
+            label: gettext("Release"),
+            bands: [
+              %{from: 1, to: 3, variant: :soft, class: "text-info", title: gettext("Planned")}
+            ]
+          },
+          %{
+            id: "freeze",
+            label: gettext("Freeze"),
+            bands: [
+              %{
+                from: 4,
+                to: 5,
+                variant: :fill,
+                class: "text-warning",
+                title: gettext("Code freeze")
+              }
+            ]
+          }
+        ]
+      )
+
+    ~H"""
+    <.showcase_section
+      title={gettext("Charts — line_chart, bar_chart, sparkline, chart_lanes")}
+      description={
+        gettext(
+          "Server-rendered SVG: no JavaScript and no chart library. They re-draw whenever the assigns change and take their colour from the text colour you set."
+        )
+      }
+    >
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <p class="text-xs text-base-content/60 mb-1">{gettext("line_chart, with a hover readout and lanes under it")}</p>
+          <div class="h-40 w-full">
+            <.line_chart
+              id="demo-line-chart"
+              data={@points}
+              x_domain={{0, 6}}
+              hover
+              class="text-primary"
+              aria_label={gettext("Sample values over seven days")}
+            />
+          </div>
+          <.chart_lanes
+            id="demo-chart-lanes"
+            rows={@lanes}
+            x_domain={{0, 6}}
+            aria_label={gettext("Planned work over the same seven days")}
+          />
+        </div>
+        <div>
+          <p class="text-xs text-base-content/60 mb-1">{gettext("bar_chart, measured from a zero baseline")}</p>
+          <div class="h-40 w-full">
+            <.bar_chart
+              id="demo-bar-chart"
+              data={@bars}
+              show_labels
+              class="text-secondary"
+              aria_label={gettext("Sample values per day")}
+            />
+          </div>
+          <p class="text-xs text-base-content/60 mt-3 mb-1">{gettext("sparkline, inline")}</p>
+          <.sparkline
+            values={Enum.map(@points, &elem(&1, 1))}
+            class="w-40 h-10 text-accent"
+            aria_label={gettext("Sample values, trend")}
+          />
+        </div>
+      </div>
+      <:snippet>
+        <code>{~s|<div class="h-48 w-full"><.line_chart id="signups" data={@points} x_domain={{0, 6}} hover class="text-primary" aria_label="Signups" /></div>|}</code>
+        <code>{~s|<.chart_lanes id="plan" rows={@rows} x_domain={{0, 6}} />|}</code>
+        <code>{~s|<div class="h-48 w-full"><.bar_chart id="sales" data={[%{label: "Mon", value: 12}]} show_labels /></div>|}</code>
+        <code>{~s|<.sparkline values={@values} class="w-40 h-10 text-accent" />|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext(
+            "Give the wrapper a height, or the chart takes the shape of its viewBox. Points are plain numbers: map time, money or rank to x and y first; Decimal values are converted. chart_lanes takes the same x_domain as the chart above it, so its bands line up with the chart's x. Pass aria_label to name the chart, or it is marked decorative."
+          )}
+        </p>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
+  attr(:date, Date, required: true)
+  attr(:today, Date, required: true)
+
+  defp date_nav_section(assigns) do
+    ~H"""
+    <.showcase_section
+      title={gettext("Date navigation")}
+      description={
+        gettext(
+          "Previous, next and today over a date kept in the URL — the header of a page that shows one day at a time. The buttons patch back to this page with ?date=."
+        )
+      }
+    >
+      <.date_nav
+        id="demo-date-nav"
+        date={@date}
+        today={@today}
+        max={@today}
+        path={&"#{Paths.components()}?date=#{&1}"}
+      />
+      <p class="text-sm mt-3" id="demo-date-current">
+        {gettext("Showing %{date}", date: Date.to_iso8601(@date))}
+      </p>
+      <:snippet>
+        <code>{~s|import PhoenixKitWeb.Components.Core.DateNav, only: [date_nav: 1]|}</code>
+        <code>{~s|<.date_nav date={@date} today={@today} max={@today} path={&"\#{Paths.items()}?date=\#{&1}"} />|}</code>
+        <code>{~s|def handle_params(params, _uri, socket) do|}</code>
+        <code>{~s|  {:noreply, assign(socket, :date, DateNav.parse_param(params["date"], today: socket.assigns.today, max: socket.assigns.today))}|}</code>
+        <code>{~s|end|}</code>
+        <code>{~s|def handle_event("date_nav_pick", %{"date" => value}, socket)  # the native picker: answer with a patch|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext(
+            "parse_param reads the URL value and clamps it to min and max, so a hand-edited ?date= cannot take the page outside the range. A view with no URL of its own passes event instead of path, and step={7} moves a week at a time."
+          )}
+        </p>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
+  defp admin_page_header_section(assigns) do
+    ~H"""
+    <.showcase_section
+      title={gettext("admin_page_header — when you need it")}
+      description={
+        gettext(
+          "Not rendered here on purpose: the admin layout already draws the page header, from the page_title, page_subtitle and breadcrumb assigns this page sets in mount."
+        )
+      }
+    >
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+          <h4 class="font-semibold mb-1">{gettext("You do not need it")}</h4>
+          <p class="text-base-content/70">
+            {gettext(
+              "On an admin page that core's layout wraps: set page_title (and page_section, page_crumbs, page_subtitle) and render no header of your own — a second one would stack under the bar."
+            )}
+          </p>
+        </div>
+        <div>
+          <h4 class="font-semibold mb-1">{gettext("You do")}</h4>
+          <p class="text-base-content/70">
+            {gettext(
+              "Where no layout draws one: a page of your own outside the admin shell, or a panel with its own title and a back link and actions on its right."
+            )}
+          </p>
+        </div>
+      </div>
+      <:snippet>
+        <code>{~s|<.admin_page_header title="Invoice" subtitle="Draft" back={Paths.invoices()} back_label="Invoices">|}</code>
+        <code>{~s|  <:actions><.button size="sm">Send</.button></:actions>|}</code>
+        <code>{~s|</.admin_page_header>|}</code>
+        <p class="text-xs text-base-content/50">
+          {gettext(
+            "back must already be a resolved path (Paths, not a literal). The subtitle shows only when the site's show_page_descriptions setting is on."
+          )}
+        </p>
+      </:snippet>
+    </.showcase_section>
+    """
+  end
+
   defp context_components_section(assigns) do
     assigns =
       assign(assigns, :components, [
@@ -1926,7 +2858,33 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
         {"<.event_timeline_item />", gettext("One entry of an email event timeline.")},
         {"<.oauth_provider_* />, <.aws_region_select />, <.aws_credentials_verify />",
          gettext("Provider credential forms used by core's own settings pages.")},
-        {"<.module_card />", gettext("The card on the admin Modules page.")}
+        {"<.module_card />", gettext("The card on the admin Modules page.")},
+        {"TreePicker",
+         gettext(
+           "A searchable tree for picking one record or several out of a nested set. A LiveComponent that needs a tree built with PhoenixKit.Utils.Tree."
+         )},
+        {"<.translatable_field />, <.multilang_tabs />, <.multilang_fields_wrapper />",
+         gettext(
+           "Language tabs and translatable fields (PhoenixKitWeb.Components.MultilangForm). They need the multilang setup of a real record and form."
+         )},
+        {"<.activity_list />",
+         gettext("A slice of the Activity log as a table. It needs entries from Activity.list/1.")},
+        {"<.preview_card />",
+         gettext(
+           "A read-only modal card with a carousel of a record's photos and files. It needs stored media."
+         )},
+        {"<.change_marker />",
+         gettext(
+           "The Updated marker of an accordion with cue set. It lives inside accordion, which pushes the highlight from the server."
+         )},
+        {"<.connect_account_button />",
+         gettext(
+           "Runs an OAuth authorization in a popup. It needs the app's OAuth start and callback routes."
+         )},
+        {"<.folder_explorer />",
+         gettext(
+           "The folder tree of the media browser. The consumer implements its navigation events."
+         )}
       ])
 
     ~H"""
@@ -1954,7 +2912,7 @@ defmodule PhoenixKitHelloWorld.Web.ComponentsLive do
     ~H"""
     <div class="text-xs text-base-content/50 text-center pt-4 border-t">
       {gettext(
-        "Every core component lives in phoenix_kit's lib/phoenix_kit_web/components/core directory. Each one declares its attributes and slots — read them for the options this page does not show."
+        "Most core components live in phoenix_kit's lib/phoenix_kit_web/components/core directory; the larger ones (TreePicker, MultilangForm, FolderExplorer, the media browser, the dashboard and admin navigation) sit beside it in components/. Each one declares its attributes and slots — read them for the options this page does not show."
       )}
     </div>
     """

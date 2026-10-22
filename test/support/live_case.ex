@@ -14,7 +14,7 @@ defmodule PhoenixKitHelloWorld.LiveCase do
         use PhoenixKitHelloWorld.LiveCase
 
         test "renders the overview page", %{conn: conn} do
-          {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+          {:ok, _view, html} = live(conn, "/admin/hello-world")
           assert html =~ "Hello World Plugin"
         end
       end
@@ -86,7 +86,7 @@ defmodule PhoenixKitHelloWorld.LiveCase do
   ## Example
 
       conn = put_test_scope(conn, fake_scope(permissions: ["hello_world"]))
-      {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, _view, html} = live(conn, "/admin/hello-world")
       assert html =~ "Log demo event"
   """
   def fake_scope(opts \\ []) do
@@ -130,7 +130,7 @@ defmodule PhoenixKitHelloWorld.LiveCase do
   ## Example
 
       conn = put_test_scope(conn, fake_scope())
-      {:ok, view, _} = live(conn, "/en/admin/hello-world")
+      {:ok, view, _} = live(conn, "/admin/hello-world")
   """
   def put_test_scope(conn, scope) do
     Plug.Test.init_test_session(conn, %{"phoenix_kit_test_scope" => scope})

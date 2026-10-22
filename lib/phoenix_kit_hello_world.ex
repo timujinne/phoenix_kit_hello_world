@@ -84,9 +84,9 @@ defmodule PhoenixKitHelloWorld do
 
   ## Callbacks overview
 
-  Every callback of `PhoenixKit.Module`. "Here" says whether this module
-  implements it; everything else keeps the default `use PhoenixKit.Module`
-  provides.
+  Every callback of `PhoenixKit.Module` at the core floor. "Here" says whether
+  this module implements it; everything else keeps the default
+  `use PhoenixKit.Module` provides.
 
   | Callback                     | Required? | Here | What it does                                              |
   |------------------------------|-----------|------|-----------------------------------------------------------|
@@ -119,11 +119,10 @@ defmodule PhoenixKitHelloWorld do
   | `migrate_legacy/0`           | No        | no   | One-shot legacy data migrations, run at boot              |
   | `email_settings_sections/0`  | No        | no   | Sections added to the core email settings page            |
   | `media_reorganizer/0`        | No        | no   | Storage reorganizer source for this module's records      |
-
-  Core releases after this module's floor add `email_templates/0` (core 2.44)
-  and `job_kinds/0` (core 2.48). Raise the `phoenix_kit` floor in `mix.exs`
-  before annotating either with `@impl` — on an older core the behaviour does
-  not declare it and the annotation is a compile warning.
+  | `oban_crons/0`               | No        | no   | Cron schedules for this module's Oban workers             |
+  | `email_templates/0`          | No        | no   | Email templates the admin can preview and edit            |
+  | `job_kinds/0`                | No        | no   | Kinds of long-running run shown under Admin → Jobs        |
+  | `api_tools/0`                | No        | no   | REST operations core builds from this module's tools      |
 
   Two further integrations are **duck-typed** — plain functions another
   package discovers at runtime, with no behaviour and no `@impl`:

@@ -11,7 +11,7 @@ msgstr ""
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100 != 11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10||n%100>=20) ? 1 : 2);\n"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1492
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1974
 #, elixir-autogen, elixir-format
 msgid "%{count} person"
 msgid_plural "%{count} people"
@@ -39,32 +39,32 @@ msgstr "%{count} ч назад"
 msgid "%{count}m ago"
 msgstr "%{count} мин назад"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:970
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1296
 #, elixir-autogen, elixir-format
 msgid "3 new"
 msgstr "3 новых"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1925
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2857
 #, elixir-autogen, elixir-format
 msgid "A Markdown editor. A LiveComponent: render it with live_component and an id."
 msgstr "Редактор Markdown. Это LiveComponent: рендерится через live_component с id."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:843
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1106
 #, elixir-autogen, elixir-format
 msgid "A link, styled as a button"
 msgstr "Ссылка, оформленная как кнопка"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:106
+#: lib/phoenix_kit_hello_world/web/components_live.ex:158
 #, elixir-autogen, elixir-format
 msgid "A live showcase of commonly-used components from PhoenixKitWeb.Components.Core.*. Copy the snippets into your own module."
 msgstr "Живая витрина часто используемых компонентов из PhoenixKitWeb.Components.Core.*. Копируйте примеры в свой модуль."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:908
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1234
 #, elixir-autogen, elixir-format
 msgid "A modular framework for Elixir/Phoenix apps — auth, admin dashboard, activity logging, role-based access, and more."
 msgstr "Модульный фреймворк для приложений на Elixir/Phoenix — аутентификация, админ-панель, журнал действий, доступ по ролям и многое другое."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1879
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2634
 #, elixir-autogen, elixir-format
 msgid "A reorderable list. Dropping an item sends an event with the new order."
 msgstr "Список с перетаскиванием. Когда элемент отпущен, отправляется событие с новым порядком."
@@ -74,23 +74,23 @@ msgstr "Список с перетаскиванием. Когда элемен�
 msgid "A second button, \"Log moderation event\", appears for roles granted the \"Moderate\" sub-permission while the module is enabled."
 msgstr "Вторая кнопка «Записать событие модерации» появляется у ролей с дополнительным правом «Модерация», пока модуль включён."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:678
+#: lib/phoenix_kit_hello_world/web/components_live.ex:941
 #, elixir-autogen, elixir-format
 msgid "A standard daisyUI table."
 msgstr "Обычная таблица daisyUI."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1731
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2456
 #, elixir-autogen, elixir-format
 msgid "A typeahead for search-and-pick fields. The dropdown is drawn in the browser; the server only answers the search, here from the five sample people."
 msgstr "Поле поиска с выбором. Выпадающий список рисуется в браузере; сервер только отвечает на поиск — здесь по пяти примерам людей."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:474
-#: lib/phoenix_kit_hello_world/web/components_live.ex:510
+#: lib/phoenix_kit_hello_world/web/components_live.ex:737
+#: lib/phoenix_kit_hello_world/web/components_live.ex:773
 #, elixir-autogen, elixir-format
 msgid "Accent"
 msgstr "Акцент"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1901
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2656
 #, elixir-autogen, elixir-format
 msgid "Accept a reorder only when the ids are exactly a permutation of the ones you rendered. The drag behaviour comes from a core hook."
 msgstr "Принимайте новый порядок, только если идентификаторы — в точности перестановка тех, что вы отрисовали. Перетаскивание обеспечивает хук ядра."
@@ -100,22 +100,23 @@ msgstr "Принимайте новый порядок, только если и
 msgid "Action"
 msgstr "Действие"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1511
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2007
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2147
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr "Действия"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1018
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1344
 #, elixir-autogen, elixir-format
 msgid "Active sessions"
 msgstr "Активные сеансы"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:988
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1314
 #, elixir-autogen, elixir-format
 msgid "Active tab:"
 msgstr "Активная вкладка:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:950
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1276
 #, elixir-autogen, elixir-format
 msgid "Activity"
 msgstr "Активность"
@@ -130,7 +131,7 @@ msgstr "Пример журнала действий"
 msgid "Activity logging"
 msgstr "Журнал действий"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1226
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1594
 #, elixir-autogen, elixir-format
 msgid "Admin"
 msgstr "Администратор"
@@ -145,12 +146,12 @@ msgstr "Макет админ-панели"
 msgid "Admin?"
 msgstr "Администратор?"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1077
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1445
 #, elixir-autogen, elixir-format
 msgid "Age badges:"
 msgstr "Значки давности:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:539
+#: lib/phoenix_kit_hello_world/web/components_live.ex:802
 #, elixir-autogen, elixir-format
 msgid "Alerts"
 msgstr "Оповещения"
@@ -160,24 +161,19 @@ msgstr "Оповещения"
 msgid "All Actions"
 msgstr "Все действия"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1411
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1893
 #, elixir-autogen, elixir-format
 msgid "An anchored panel for rich content — filters, pickers, small forms. It opens in the browser with no round-trip, and stays open while its content talks to the server."
 msgstr "Привязанная панель для сложного содержимого — фильтров, выбора, небольших форм. Открывается в браузере без запроса к серверу и остаётся открытой, пока её содержимое общается с сервером."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:884
-#, elixir-autogen, elixir-format
-msgid "An unknown status renders as a neutral badge rather than raising. The label is the status string with underscores as spaces."
-msgstr "Неизвестный статус отображается нейтральным значком, а не ошибкой. Подпись — строка статуса, где подчёркивания заменены пробелами."
-
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1525
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1608
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1654
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2021
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2333
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2379
 #, elixir-autogen, elixir-format
 msgid "Archive"
 msgstr "В архив"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1718
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2443
 #, elixir-autogen, elixir-format
 msgid "Archived %{count} row from the server-held selection (a demo: nothing changed)."
 msgid_plural "Archived %{count} rows from the server-held selection (a demo: nothing changed)."
@@ -185,17 +181,17 @@ msgstr[0] "Из выбора на сервере в архив отправле�
 msgstr[1] "Из выбора на сервере в архив отправлены %{count} строки (демо: ничего не изменилось)."
 msgstr[2] "Из выбора на сервере в архив отправлено %{count} строк (демо: ничего не изменилось)."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1575
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2073
 #, elixir-autogen, elixir-format
 msgid "Archived %{name} (a demo: nothing changed)."
 msgstr "%{name}: отправлено в архив (демо: ничего не изменилось)."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1651
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2376
 #, elixir-autogen, elixir-format
 msgid "Archiving…"
 msgstr "Архивация…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1379
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1845
 #, elixir-autogen, elixir-format
 msgid "Are you sure you want to increment the counter?"
 msgstr "Увеличить счётчик?"
@@ -205,12 +201,12 @@ msgstr "Увеличить счётчик?"
 msgid "Auto-discovery"
 msgstr "Автообнаружение"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:467
+#: lib/phoenix_kit_hello_world/web/components_live.ex:730
 #, elixir-autogen, elixir-format
 msgid "Badges"
 msgstr "Значки"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1229
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1597
 #, elixir-autogen, elixir-format
 msgid "Bio"
 msgstr "О себе"
@@ -220,22 +216,22 @@ msgstr "О себе"
 msgid "Browse %{link} to see what's available"
 msgstr "Откройте раздел %{link}, чтобы увидеть, что доступно"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1584
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2309
 #, elixir-autogen, elixir-format
 msgid "Bulk selection"
 msgstr "Массовый выбор"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:820
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1083
 #, elixir-autogen, elixir-format
 msgid "Button — core button"
 msgstr "Кнопка — button из ядра"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:504
+#: lib/phoenix_kit_hello_world/web/components_live.ex:767
 #, elixir-autogen, elixir-format
 msgid "Buttons"
 msgstr "Кнопки"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1149
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1517
 #, elixir-autogen, elixir-format
 msgid "Buttons — one visible button per language:"
 msgstr "Кнопки — по одной видимой кнопке на язык:"
@@ -245,32 +241,27 @@ msgstr "Кнопки — по одной видимой кнопке на язы
 msgid "Can moderate?"
 msgstr "Может модерировать?"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1381
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1847
 #, elixir-autogen, elixir-format
 msgid "Cancel"
 msgstr "Отмена"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1290
-#, elixir-autogen, elixir-format
-msgid "Cancel is a link with cancel_to, an event with cancel_click (add cancel_target inside a LiveComponent), or your own markup in the cancel slot — one of the three."
-msgstr "Отмена — это ссылка (cancel_to), событие (cancel_click; внутри LiveComponent добавьте cancel_target) или ваша собственная разметка в слоте cancel — одно из трёх."
-
-#: lib/phoenix_kit_hello_world/web/components_live.ex:551
+#: lib/phoenix_kit_hello_world/web/components_live.ex:814
 #, elixir-autogen, elixir-format
 msgid "Careful — double-check before proceeding."
 msgstr "Осторожно — проверьте ещё раз, прежде чем продолжить."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:653
+#: lib/phoenix_kit_hello_world/web/components_live.ex:916
 #, elixir-autogen, elixir-format
 msgid "Checkbox"
 msgstr "Флажок"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1227
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1595
 #, elixir-autogen, elixir-format
 msgid "Choose one"
 msgstr "Выберите"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1617
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2342
 #: lib/phoenix_kit_hello_world/web/events_live.ex:278
 #, elixir-autogen, elixir-format
 msgid "Clear"
@@ -281,24 +272,24 @@ msgstr "Сбросить"
 msgid "Click a button below to log an activity event, then visit the %{link} to see it appear in the feed."
 msgstr "Нажмите кнопку ниже, чтобы записать событие, затем откройте %{link} — оно появится в ленте."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1594
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2319
 #, elixir-autogen, elixir-format
 msgid "Client-owned — bulk_select_scope with its header and row cells. Instant on any connection."
 msgstr "На стороне браузера — bulk_select_scope с ячейками заголовка и строк. Мгновенно при любом соединении."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:896
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1222
 #, elixir-autogen, elixir-format
 msgid "Collapsible sections"
 msgstr "Сворачиваемые разделы"
 
-#: lib/phoenix_kit_hello_world.ex:376
-#: lib/phoenix_kit_hello_world/web/components_live.ex:102
+#: lib/phoenix_kit_hello_world.ex:375
+#: lib/phoenix_kit_hello_world/web/components_live.ex:154
 #: lib/phoenix_kit_hello_world/web/hello_live.ex:469
 #, elixir-autogen, elixir-format
 msgid "Components"
 msgstr "Компоненты"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1934
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2892
 #, elixir-autogen, elixir-format
 msgid "Components not shown here"
 msgstr "Компоненты, не показанные здесь"
@@ -308,27 +299,27 @@ msgstr "Компоненты, не показанные здесь"
 msgid "Components showcase"
 msgstr "Витрина компонентов"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1378
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1844
 #, elixir-autogen, elixir-format
 msgid "Confirm action"
 msgstr "Подтвердите действие"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:200
+#: lib/phoenix_kit_hello_world/web/components_live.ex:271
 #, elixir-autogen, elixir-format
 msgid "Confirmed! Counter is now %{count}"
 msgstr "Подтверждено! Счётчик теперь %{count}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:426
+#: lib/phoenix_kit_hello_world/web/components_live.ex:689
 #, elixir-autogen, elixir-format
 msgid "Context-dependent components"
 msgstr "Компоненты, зависящие от контекста"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1312
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1763
 #, elixir-autogen, elixir-format
 msgid "Core's modal opens as a real top-layer dialog: Esc and the backdrop close it, focus is trapped, and it can open as a drawer. confirm_modal is the ready-made confirmation."
 msgstr "modal из ядра открывается как настоящий диалог верхнего слоя: Esc и фон закрывают его, фокус остаётся внутри, и его можно открыть как боковую панель. confirm_modal — готовое окно подтверждения."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1005
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1331
 #, elixir-autogen, elixir-format
 msgid "Core's stat_card with color variants and an icon slot."
 msgstr "stat_card из ядра с цветовыми вариантами и слотом для иконки."
@@ -338,28 +329,28 @@ msgstr "stat_card из ядра с цветовыми вариантами и с
 msgid "Could not send the notification. Check the server logs."
 msgstr "Не удалось отправить уведомление. Проверьте журналы сервера."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1427
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1909
 #, elixir-autogen, elixir-format
 msgid "Counter: %{count}"
 msgstr "Счётчик: %{count}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:774
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1839
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1037
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2594
 #, elixir-autogen, elixir-format
 msgid "Create"
 msgstr "Создать"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1857
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2612
 #, elixir-autogen, elixir-format
 msgid "Create first item"
 msgstr "Создать первый элемент"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:772
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1035
 #, elixir-autogen, elixir-format
 msgid "Create your first item to get started."
 msgstr "Создайте первый элемент, чтобы начать."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1853
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2608
 #, elixir-autogen, elixir-format
 msgid "Create your first item to see it appear here."
 msgstr "Создайте первый элемент, и он появится здесь."
@@ -379,18 +370,18 @@ msgstr "Своё оформление"
 msgid "Declare your module's notification types"
 msgstr "Объявите типы уведомлений своего модуля"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:471
+#: lib/phoenix_kit_hello_world/web/components_live.ex:734
 #, elixir-autogen, elixir-format
 msgid "Default"
 msgstr "По умолчанию"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:513
-#: lib/phoenix_kit_hello_world/web/components_live.ex:835
+#: lib/phoenix_kit_hello_world/web/components_live.ex:776
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1098
 #, elixir-autogen, elixir-format
 msgid "Disabled"
 msgstr "Отключено"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1363
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1829
 #, elixir-autogen, elixir-format
 msgid "Discard"
 msgstr "Не сохранять"
@@ -405,22 +396,22 @@ msgstr "Скрыть все"
 msgid "Dismissing…"
 msgstr "Скрытие…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1270
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1638
 #, elixir-autogen, elixir-format
 msgid "Display name"
 msgstr "Отображаемое имя"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1430
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1912
 #, elixir-autogen, elixir-format
 msgid "Done"
 msgstr "Готово"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1878
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2633
 #, elixir-autogen, elixir-format
 msgid "Draggable list"
 msgstr "Перетаскиваемый список"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1143
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1511
 #, elixir-autogen, elixir-format
 msgid "Dropdown — compact, for headers and navbars:"
 msgstr "Выпадающий список — компактный, для шапок и панелей навигации:"
@@ -430,18 +421,18 @@ msgstr "Выпадающий список — компактный, для ша�
 msgid "Edit %{file} — this file"
 msgstr "Отредактируйте %{file} — это данный файл"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1222
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1590
 #: lib/phoenix_kit_hello_world/web/hello_live.ex:374
 #, elixir-autogen, elixir-format
 msgid "Email"
 msgstr "Эл. почта"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1812
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2567
 #, elixir-autogen, elixir-format
 msgid "Empty state — core empty_state"
 msgstr "Пустое состояние — empty_state из ядра"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:766
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1029
 #, elixir-autogen, elixir-format
 msgid "Empty states"
 msgstr "Пустые состояния"
@@ -451,8 +442,8 @@ msgstr "Пустые состояния"
 msgid "Enabled"
 msgstr "Включён"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:477
-#: lib/phoenix_kit_hello_world/web/components_live.ex:834
+#: lib/phoenix_kit_hello_world/web/components_live.ex:740
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1097
 #, elixir-autogen, elixir-format
 msgid "Error"
 msgstr "Ошибка"
@@ -462,7 +453,7 @@ msgstr "Ошибка"
 msgid "Event logged — check the Events tab!"
 msgstr "Событие записано — загляните на вкладку «События»!"
 
-#: lib/phoenix_kit_hello_world.ex:375
+#: lib/phoenix_kit_hello_world.ex:374
 #: lib/phoenix_kit_hello_world/web/events_live.ex:60
 #, elixir-autogen, elixir-format
 msgid "Events"
@@ -483,11 +474,6 @@ msgstr "События, записанные модулем Hello World. Что�
 msgid "Events tab"
 msgstr "вкладку «События»"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1956
-#, elixir-autogen, elixir-format
-msgid "Every core component lives in phoenix_kit's lib/phoenix_kit_web/components/core directory. Each one declares its attributes and slots — read them for the options this page does not show."
-msgstr "Все компоненты ядра лежат в каталоге lib/phoenix_kit_web/components/core пакета phoenix_kit. Каждый объявляет свои атрибуты и слоты — в них описаны возможности, которых нет на этой странице."
-
 #: lib/phoenix_kit_hello_world/web/hello_live.ex:409
 #, elixir-autogen, elixir-format
 msgid "Explore the showcase"
@@ -498,45 +484,45 @@ msgstr "Что ещё посмотреть"
 msgid "Failed to log event. Check the server logs."
 msgstr "Не удалось записать событие. Проверьте журналы сервера."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1097
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1465
 #, elixir-autogen, elixir-format
 msgid "File display"
 msgstr "Отображение файлов"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1102
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1470
 #, elixir-autogen, elixir-format
 msgid "File sizes:"
 msgstr "Размеры файлов:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:492
+#: lib/phoenix_kit_hello_world/web/components_live.ex:755
 #, elixir-autogen, elixir-format
 msgid "For a record's status, prefer the status_badge component below the divider — it picks the colour from the status."
 msgstr "Для статуса записи лучше использовать компонент status_badge ниже разделителя — он сам подбирает цвет по статусу."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1213
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1581
 #, elixir-autogen, elixir-format
 msgid "Form helpers"
 msgstr "Помощники форм"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:622
+#: lib/phoenix_kit_hello_world/web/components_live.ex:885
 #, elixir-autogen, elixir-format
 msgid "Form inputs"
 msgstr "Поля форм"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1254
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1622
 #, elixir-autogen, elixir-format
 msgid "Form section and form actions"
 msgstr "Секция формы и действия формы"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1046
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1414
 #, elixir-autogen, elixir-format
 msgid "Format numbers as grouped (1,234,567) or short (1.2M)."
 msgstr "Форматирование чисел: с разделителями (1,234,567) или кратко (1.2M)."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:479
-#: lib/phoenix_kit_hello_world/web/components_live.ex:511
-#: lib/phoenix_kit_hello_world/web/components_live.ex:831
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1192
+#: lib/phoenix_kit_hello_world/web/components_live.ex:742
+#: lib/phoenix_kit_hello_world/web/components_live.ex:774
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1094
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1560
 #, elixir-autogen, elixir-format
 msgid "Ghost"
 msgstr "Прозрачная"
@@ -554,12 +540,12 @@ msgstr[2] "Приветствие отправлено %{count} раз"
 msgid "Greeting…"
 msgstr "Приветствие…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1050
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1418
 #, elixir-autogen, elixir-format
 msgid "Grouped:"
 msgstr "С разделителями:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1226
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1594
 #, elixir-autogen, elixir-format
 msgid "Guest"
 msgstr "Гость"
@@ -569,7 +555,7 @@ msgstr "Гость"
 msgid "Head back to the Overview page and click \"Log demo event\"."
 msgstr "Вернитесь на страницу обзора и нажмите «Записать демо-событие»."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:543
+#: lib/phoenix_kit_hello_world/web/components_live.ex:806
 #, elixir-autogen, elixir-format
 msgid "Heads up — this is an info message."
 msgstr "Обратите внимание — это информационное сообщение."
@@ -579,8 +565,8 @@ msgstr "Обратите внимание — это информационно�
 msgid "Hello"
 msgstr "Привет"
 
-#: lib/phoenix_kit_hello_world.ex:373
-#: lib/phoenix_kit_hello_world/web/components_live.ex:103
+#: lib/phoenix_kit_hello_world.ex:372
+#: lib/phoenix_kit_hello_world/web/components_live.ex:155
 #: lib/phoenix_kit_hello_world/web/events_live.ex:61
 #: lib/phoenix_kit_hello_world/web/hello_live.ex:76
 #: lib/phoenix_kit_hello_world/web/notifications_live.ex:69
@@ -603,22 +589,22 @@ msgstr "Привет из вкладки расширения проекта"
 msgid "Hello world"
 msgstr "Привет, мир"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1098
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1466
 #, elixir-autogen, elixir-format
 msgid "Helpers for file size, modification time, and page status."
 msgstr "Помощники для размера файла, времени изменения и статуса страницы."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:444
+#: lib/phoenix_kit_hello_world/web/components_live.ex:707
 #, elixir-autogen, elixir-format
 msgid "Heroicons via the icon component, imported by the live_view macro."
 msgstr "Иконки Heroicons через компонент icon, который импортирует макрос live_view."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:958
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1284
 #, elixir-autogen, elixir-format
 msgid "Horizontal tabs in three variants. A tab with a link key navigates; a tab without one fires the on_change event."
 msgstr "Горизонтальные вкладки в трёх вариантах. Вкладка с ключом ссылки выполняет переход; вкладка без него отправляет событие on_change."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:915
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1241
 #, elixir-autogen, elixir-format
 msgid "How do I add a module?"
 msgstr "Как добавить модуль?"
@@ -628,22 +614,22 @@ msgstr "Как добавить модуль?"
 msgid "How to send, customize, and manage notifications"
 msgstr "Как отправлять уведомления, настраивать их вид и управлять ими"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1230
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1598
 #, elixir-autogen, elixir-format
 msgid "I agree to the terms"
 msgstr "Я принимаю условия"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:525
+#: lib/phoenix_kit_hello_world/web/components_live.ex:788
 #, elixir-autogen, elixir-format
 msgid "Icon-only"
 msgstr "Только иконка"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:443
+#: lib/phoenix_kit_hello_world/web/components_live.ex:706
 #, elixir-autogen, elixir-format
 msgid "Icons"
 msgstr "Иконки"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:918
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1244
 #, elixir-autogen, elixir-format
 msgid "Implement the PhoenixKit.Module behaviour and list your module as a dependency. Auto-discovery handles the rest."
 msgstr "Реализуйте поведение PhoenixKit.Module и добавьте модуль в зависимости. Остальное сделает автообнаружение."
@@ -653,22 +639,22 @@ msgstr "Реализуйте поведение PhoenixKit.Module и добав�
 msgid "Implement the optional notification_types/0 callback on your module so its notifications show up as a toggle in each user's notification preferences. With sub_types the base key is a master switch and each sub is its own toggle. This module already does — see PhoenixKitHelloWorld.notification_types/0."
 msgstr "Реализуйте в своём модуле необязательный колбэк notification_types/0, чтобы его уведомления появились переключателем в настройках уведомлений каждого пользователя. С sub_types базовый ключ работает как общий выключатель, а у каждого подтипа свой переключатель. Этот модуль уже так делает — см. PhoenixKitHelloWorld.notification_types/0."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:478
+#: lib/phoenix_kit_hello_world/web/components_live.ex:741
 #, elixir-autogen, elixir-format
 msgid "Info"
 msgstr "Информация"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:539
+#: lib/phoenix_kit_hello_world/web/components_live.ex:802
 #, elixir-autogen, elixir-format
 msgid "Inline messages and notices."
 msgstr "Встроенные сообщения и уведомления."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1155
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1523
 #, elixir-autogen, elixir-format
 msgid "Inline — plain text links, for footers:"
 msgstr "В строку — простые текстовые ссылки, для подвала:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1835
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2590
 #, elixir-autogen, elixir-format
 msgid "Items you create will show up in this list."
 msgstr "Созданные вами элементы появятся в этом списке."
@@ -678,12 +664,12 @@ msgstr "Созданные вами элементы появятся в это�
 msgid "Key"
 msgstr "Ключ"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1133
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1501
 #, elixir-autogen, elixir-format
 msgid "Language switcher"
 msgstr "Переключатель языка"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1019
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1345
 #, elixir-autogen, elixir-format
 msgid "Last 5 minutes"
 msgstr "За последние 5 минут"
@@ -693,27 +679,27 @@ msgstr "За последние 5 минут"
 msgid "Last logged at %{time}"
 msgstr "Последняя запись в %{time}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1351
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1817
 #, elixir-autogen, elixir-format
 msgid "Leave a note"
 msgstr "Оставьте заметку"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1919
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2851
 #, elixir-autogen, elixir-format
 msgid "LiveView file upload. Needs allow_upload configured in mount."
 msgstr "Загрузка файлов в LiveView. Требует настроенного allow_upload в mount."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1793
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2544
 #, elixir-autogen, elixir-format
 msgid "Load-more lists (streams, infinite scroll) use load_more instead — see the Events page."
 msgstr "Списки с догрузкой (стримы, бесконечная прокрутка) используют load_more — см. страницу событий."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:792
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1055
 #, elixir-autogen, elixir-format
 msgid "Loading states"
 msgstr "Состояния загрузки"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1135
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1503
 #, elixir-autogen, elixir-format
 msgid "Locale pickers in three variants. Languages is part of core: each variant lists the languages enabled under Settings → Languages."
 msgstr "Выбор языка в трёх вариантах. Языки — часть ядра: каждый вариант показывает языки, включённые в разделе «Настройки → Языки»."
@@ -749,17 +735,17 @@ msgstr "Отметить все просмотренными"
 msgid "Marking…"
 msgstr "Отмечаем…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1310
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1761
 #, elixir-autogen, elixir-format
 msgid "Modals"
 msgstr "Модальные окна"
 
-#: lib/phoenix_kit_hello_world.ex:378
+#: lib/phoenix_kit_hello_world.ex:377
 #, elixir-autogen, elixir-format
 msgid "Moderate"
 msgstr "Модерация"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1109
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1477
 #, elixir-autogen, elixir-format
 msgid "Modification time:"
 msgstr "Время изменения:"
@@ -779,21 +765,25 @@ msgstr "О модуле"
 msgid "Module access?"
 msgstr "Доступ к модулю?"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:648
+#: lib/phoenix_kit_hello_world/web/components_live.ex:911
 #, elixir-autogen, elixir-format
 msgid "Multi-line..."
 msgstr "Несколько строк..."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:683
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1221
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1497
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1627
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1661
+#: lib/phoenix_kit_hello_world/web/components_live.ex:946
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1589
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1987
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1993
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2098
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2127
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2224
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2352
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2386
 #, elixir-autogen, elixir-format
 msgid "Name"
 msgstr "Имя"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:956
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1282
 #, elixir-autogen, elixir-format
 msgid "Nav tabs"
 msgstr "Вкладки навигации"
@@ -803,7 +793,7 @@ msgstr "Вкладки навигации"
 msgid "Next Steps"
 msgstr "Что дальше"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:547
+#: lib/phoenix_kit_hello_world/web/components_live.ex:810
 #, elixir-autogen, elixir-format
 msgid "Nice — you did the thing."
 msgstr "Отлично — всё получилось."
@@ -818,17 +808,17 @@ msgstr "Нет событий, подходящих под этот фильтр
 msgid "No events recorded yet"
 msgstr "Событий пока нет"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1824
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2579
 #, elixir-autogen, elixir-format
 msgid "No items match this filter."
 msgstr "Нет элементов, подходящих под этот фильтр."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1852
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2607
 #, elixir-autogen, elixir-format
 msgid "No items yet"
 msgstr "Элементов пока нет"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1756
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2481
 #, elixir-autogen, elixir-format
 msgid "No matches"
 msgstr "Нет совпадений"
@@ -838,28 +828,28 @@ msgstr "Нет совпадений"
 msgid "No notifications yet — hit \"Send a notification\" above."
 msgstr "Уведомлений пока нет — нажмите «Отправить уведомление» выше."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1537
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2033
 #, elixir-autogen, elixir-format
 msgid "No people match this search."
 msgstr "По этому запросу никого не найдено."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1354
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1820
 #, elixir-autogen, elixir-format
 msgid "Note"
 msgstr "Заметка"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:184
+#: lib/phoenix_kit_hello_world/web/components_live.ex:255
 #, elixir-autogen, elixir-format
 msgid "Note saved."
 msgstr "Заметка сохранена."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:771
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1834
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1034
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2589
 #, elixir-autogen, elixir-format
 msgid "Nothing here yet"
 msgstr "Здесь пока пусто"
 
-#: lib/phoenix_kit_hello_world.ex:377
+#: lib/phoenix_kit_hello_world.ex:376
 #: lib/phoenix_kit_hello_world/web/notifications_live.ex:68
 #, elixir-autogen, elixir-format
 msgid "Notifications"
@@ -870,96 +860,96 @@ msgstr "Уведомления"
 msgid "Notifications, the PhoenixKit way"
 msgstr "Уведомления по правилам PhoenixKit"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1045
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1413
 #, elixir-autogen, elixir-format
 msgid "Number formatter"
 msgstr "Форматирование чисел"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:865
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1128
 #, elixir-autogen, elixir-format
 msgid "One badge for a record's status. The colour comes from the status string, so every list in every module shows the same status the same way."
 msgstr "Один значок для статуса записи. Цвет определяется строкой статуса, поэтому любой список в любом модуле показывает один и тот же статус одинаково."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1926
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2858
 #, elixir-autogen, elixir-format
 msgid "One entry of an email event timeline."
 msgstr "Одна запись на временной шкале событий письма."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1327
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1778
 #, elixir-autogen, elixir-format
 msgid "Open as drawer"
 msgstr "Открыть боковой панелью"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1330
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1781
 #, elixir-autogen, elixir-format
 msgid "Open confirm (counter: %{count})"
 msgstr "Открыть подтверждение (счётчик: %{count})"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1319
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1770
 #, elixir-autogen, elixir-format
 msgid "Open modal"
 msgstr "Открыть модальное окно"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1418
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1900
 #, elixir-autogen, elixir-format
 msgid "Open panel"
 msgstr "Открыть панель"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:640
+#: lib/phoenix_kit_hello_world/web/components_live.ex:903
 #, elixir-autogen, elixir-format
 msgid "Option A"
 msgstr "Вариант A"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:641
+#: lib/phoenix_kit_hello_world/web/components_live.ex:904
 #, elixir-autogen, elixir-format
 msgid "Option B"
 msgstr "Вариант B"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:642
+#: lib/phoenix_kit_hello_world/web/components_live.ex:905
 #, elixir-autogen, elixir-format
 msgid "Option C"
 msgstr "Вариант C"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:605
+#: lib/phoenix_kit_hello_world/web/components_live.ex:868
 #, elixir-autogen, elixir-format
 msgid "Orders"
 msgstr "Заказы"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:480
-#: lib/phoenix_kit_hello_world/web/components_live.ex:512
-#: lib/phoenix_kit_hello_world/web/components_live.ex:830
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1189
+#: lib/phoenix_kit_hello_world/web/components_live.ex:743
+#: lib/phoenix_kit_hello_world/web/components_live.ex:775
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1093
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1557
 #, elixir-autogen, elixir-format
 msgid "Outline"
 msgstr "Контурная"
 
-#: lib/phoenix_kit_hello_world.ex:374
-#: lib/phoenix_kit_hello_world/web/components_live.ex:949
+#: lib/phoenix_kit_hello_world.ex:373
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1275
 #, elixir-autogen, elixir-format
 msgid "Overview"
 msgstr "Обзор"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:739
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1002
 #, elixir-autogen, elixir-format
 msgid "Page navigation using daisyUI joined buttons."
 msgstr "Постраничная навигация на объединённых кнопках daisyUI."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1113
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1481
 #, elixir-autogen, elixir-format
 msgid "Page status:"
 msgstr "Статус страницы:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:738
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1001
 #, elixir-autogen, elixir-format
 msgid "Pagination"
 msgstr "Пагинация"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1783
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2520
 #, elixir-autogen, elixir-format
 msgid "Pagination — core pagination"
 msgstr "Пагинация — pagination из ядра"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1026
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1352
 #, elixir-autogen, elixir-format
 msgid "Pending issues"
 msgstr "Нерешённые вопросы"
@@ -969,17 +959,17 @@ msgstr "Нерешённые вопросы"
 msgid "Permissions"
 msgstr "Права доступа"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:390
+#: lib/phoenix_kit_hello_world/web/components_live.ex:634
 #, elixir-autogen, elixir-format
 msgid "PhoenixKit Core Components"
 msgstr "Компоненты ядра PhoenixKit"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1174
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1542
 #, elixir-autogen, elixir-format
 msgid "PhoenixKit links"
 msgstr "Ссылки PhoenixKit"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1917
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2849
 #, elixir-autogen, elixir-format
 msgid "Picks a connected integration. Needs integrations to choose from."
 msgstr "Выбор подключённой интеграции. Нужны интеграции, из которых можно выбирать."
@@ -989,40 +979,40 @@ msgstr "Выбор подключённой интеграции. Нужны и�
 msgid "Plain"
 msgstr "Обычное"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1409
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1891
 #, elixir-autogen, elixir-format
 msgid "Popover panel"
 msgstr "Всплывающая панель"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:780
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1043
 #, elixir-autogen, elixir-format
 msgid "Prefer the wrapped counterpart below the divider — empty_state ships three variants and keeps every list view's empty panel identical."
 msgstr "Лучше использовать готовый компонент ниже разделителя — у empty_state три варианта, и пустое состояние во всех списках выглядит одинаково."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:754
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1017
 #, elixir-autogen, elixir-format
 msgid "Prefer the wrapped counterpart below the divider — pagination builds the page URLs for you and preserves the existing query string."
 msgstr "Лучше использовать готовый компонент ниже разделителя — pagination сам строит адреса страниц и сохраняет имеющиеся параметры запроса."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:726
+#: lib/phoenix_kit_hello_world/web/components_live.ex:989
 #, elixir-autogen, elixir-format
 msgid "Prefer the wrapped counterpart below the divider — table_default adds the scroll wrapper, a toolbar, sortable headers, a row menu and a mobile card view."
 msgstr "Лучше использовать готовый компонент ниже разделителя — table_default добавляет прокрутку, панель инструментов, сортируемые заголовки, меню строки и карточки на мобильных экранах."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1176
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1544
 #, elixir-autogen, elixir-format
 msgid "Prefix-aware links: they prepend the host's PhoenixKit URL prefix and the current locale. The links below all point back to this page."
 msgstr "Ссылки, учитывающие префикс: они добавляют URL-префикс PhoenixKit основного приложения и текущий язык. Все ссылки ниже ведут обратно на эту страницу."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:472
-#: lib/phoenix_kit_hello_world/web/components_live.ex:508
-#: lib/phoenix_kit_hello_world/web/components_live.ex:828
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1186
+#: lib/phoenix_kit_hello_world/web/components_live.ex:735
+#: lib/phoenix_kit_hello_world/web/components_live.ex:771
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1091
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1554
 #, elixir-autogen, elixir-format
 msgid "Primary"
 msgstr "Основная"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1268
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1636
 #, elixir-autogen, elixir-format
 msgid "Profile"
 msgstr "Профиль"
@@ -1032,12 +1022,12 @@ msgstr "Профиль"
 msgid "Project: %{id}"
 msgstr "Проект: %{id}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1928
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2860
 #, elixir-autogen, elixir-format
 msgid "Provider credential forms used by core's own settings pages."
 msgstr "Формы учётных данных провайдеров, которые используют страницы настроек самого ядра."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:659
+#: lib/phoenix_kit_hello_world/web/components_live.ex:922
 #, elixir-autogen, elixir-format
 msgid "Radio"
 msgstr "Переключатель"
@@ -1047,40 +1037,42 @@ msgstr "Переключатель"
 msgid "Read-only"
 msgstr "Только просмотр"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1183
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1551
 #, elixir-autogen, elixir-format
 msgid "Regular link"
 msgstr "Обычная ссылка"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1744
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2469
 #, elixir-autogen, elixir-format
 msgid "Remove %{name}"
 msgstr "Убрать: %{name}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1443
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1925
 #, elixir-autogen, elixir-format
 msgid "Render the panel inside a relative wrapper, next to its trigger. For a short list of row actions use table_row_menu instead."
 msgstr "Размещайте панель внутри обёртки с relative, рядом с кнопкой-триггером. Для короткого списка действий над строкой используйте table_row_menu."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1921
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2853
 #, elixir-autogen, elixir-format
 msgid "Renders Markdown with MDEx and sanitises the result — see the dashboard widget's note."
 msgstr "Отрисовывает Markdown с помощью MDEx и очищает результат — см. заметку в виджете панели."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1027
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1353
 #, elixir-autogen, elixir-format
 msgid "Require attention"
 msgstr "Требуют внимания"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:592
+#: lib/phoenix_kit_hello_world/web/components_live.ex:855
 #, elixir-autogen, elixir-format
 msgid "Revenue"
 msgstr "Выручка"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:684
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1225
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1477
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1498
+#: lib/phoenix_kit_hello_world/web/components_live.ex:577
+#: lib/phoenix_kit_hello_world/web/components_live.ex:947
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1593
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1959
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1987
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1994
 #, elixir-autogen, elixir-format
 msgid "Role"
 msgstr "Роль"
@@ -1095,50 +1087,50 @@ msgstr "Роли"
 msgid "Routing"
 msgstr "Маршрутизация"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1232
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1371
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1600
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1837
 #, elixir-autogen, elixir-format
 msgid "Save"
 msgstr "Сохранить"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1274
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1645
 #, elixir-autogen, elixir-format
 msgid "Save profile"
 msgstr "Сохранить профиль"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1279
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1652
 #, elixir-autogen, elixir-format
 msgid "Saved display name: %{name}"
 msgstr "Сохранённое отображаемое имя: %{name}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1334
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1800
 #, elixir-autogen, elixir-format
 msgid "Saved note: %{note}"
 msgstr "Сохранённая заметка: %{note}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1368
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1834
 #, elixir-autogen, elixir-format
 msgid "Saving…"
 msgstr "Сохранение…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1487
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1969
 #, elixir-autogen, elixir-format
 msgid "Search by name…"
 msgstr "Поиск по имени…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1729
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2454
 #, elixir-autogen, elixir-format
 msgid "Search picker"
 msgstr "Поиск с выбором"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1755
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2480
 #, elixir-autogen, elixir-format
 msgid "Searching…"
 msgstr "Поиск…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:473
-#: lib/phoenix_kit_hello_world/web/components_live.ex:509
-#: lib/phoenix_kit_hello_world/web/components_live.ex:829
+#: lib/phoenix_kit_hello_world/web/components_live.ex:736
+#: lib/phoenix_kit_hello_world/web/components_live.ex:772
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1092
 #, elixir-autogen, elixir-format
 msgid "Secondary"
 msgstr "Вторичная"
@@ -1153,22 +1145,23 @@ msgstr "Полное руководство — в файле %{file}"
 msgid "Seen"
 msgstr "Просмотрено"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:637
+#: lib/phoenix_kit_hello_world/web/components_live.ex:900
 #, elixir-autogen, elixir-format
 msgid "Select"
 msgstr "Список выбора"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1674
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2399
 #, elixir-autogen, elixir-format
 msgid "Select %{name}"
 msgstr "Выбрать: %{name}"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1625
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2222
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2350
 #, elixir-autogen, elixir-format
 msgid "Select all people"
 msgstr "Выбрать всех"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1600
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2325
 #, elixir-autogen, elixir-format
 msgid "Selected:"
 msgstr "Выбрано:"
@@ -1199,22 +1192,22 @@ msgstr "Уведомление со своим оформлением отпра
 msgid "Sent — check the bell (and the list below)."
 msgstr "Отправлено — посмотрите на колокольчик (и на список ниже)."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1642
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2367
 #, elixir-autogen, elixir-format
 msgid "Server-owned — bulk_actions_bar over a set the LiveView keeps. Use it when the page must know the selection as it changes."
 msgstr "На стороне сервера — bulk_actions_bar над набором, который хранит LiveView. Используйте, когда странице нужно знать выбор по мере его изменения."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:951
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1277
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr "Настройки"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1053
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1421
 #, elixir-autogen, elixir-format
 msgid "Short:"
 msgstr "Кратко:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1990
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2948
 #, elixir-autogen, elixir-format
 msgid "Show snippet"
 msgstr "Показать пример кода"
@@ -1224,7 +1217,7 @@ msgstr "Показать пример кода"
 msgid "Show the code pattern"
 msgstr "Показать пример кода"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1269
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1637
 #, elixir-autogen, elixir-format
 msgid "Shown next to everything you post."
 msgstr "Показывается рядом со всем, что вы публикуете."
@@ -1234,45 +1227,47 @@ msgstr "Показывается рядом со всем, что вы публ�
 msgid "Sidebar tab"
 msgstr "Вкладка боковой панели"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:555
+#: lib/phoenix_kit_hello_world/web/components_live.ex:818
 #, elixir-autogen, elixir-format
 msgid "Something went wrong."
 msgstr "Что-то пошло не так."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:793
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1056
 #, elixir-autogen, elixir-format
 msgid "Spinners and skeleton placeholders."
 msgstr "Индикаторы загрузки и скелетные заглушки."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1004
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1330
 #, elixir-autogen, elixir-format
 msgid "Stat card"
 msgstr "Карточка показателя"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:568
+#: lib/phoenix_kit_hello_world/web/components_live.ex:831
 #, elixir-autogen, elixir-format
 msgid "Stat cards"
 msgstr "Карточки показателей"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:685
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1478
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1499
+#: lib/phoenix_kit_hello_world/web/components_live.ex:578
+#: lib/phoenix_kit_hello_world/web/components_live.ex:948
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1960
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1987
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1995
 #, elixir-autogen, elixir-format
 msgid "Status"
 msgstr "Статус"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:863
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1126
 #, elixir-autogen, elixir-format
 msgid "Status badge — core status_badge"
 msgstr "Значок статуса — status_badge из ядра"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:475
-#: lib/phoenix_kit_hello_world/web/components_live.ex:832
+#: lib/phoenix_kit_hello_world/web/components_live.ex:738
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1095
 #, elixir-autogen, elixir-format
 msgid "Success"
 msgstr "Успех"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:569
+#: lib/phoenix_kit_hello_world/web/components_live.ex:832
 #, elixir-autogen, elixir-format
 msgid "Summary cards showing a metric with an icon and label."
 msgstr "Сводные карточки: показатель с иконкой и подписью."
@@ -1282,52 +1277,52 @@ msgstr "Сводные карточки: показатель с иконкой 
 msgid "System"
 msgstr "Система"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1460
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1942
 #, elixir-autogen, elixir-format
 msgid "Table — core table_default"
 msgstr "Таблица — table_default из ядра"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:678
+#: lib/phoenix_kit_hello_world/web/components_live.ex:941
 #, elixir-autogen, elixir-format
 msgid "Tables"
 msgstr "Таблицы"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:633
+#: lib/phoenix_kit_hello_world/web/components_live.ex:896
 #, elixir-autogen, elixir-format
 msgid "Text input"
 msgstr "Текстовое поле"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:647
+#: lib/phoenix_kit_hello_world/web/components_live.ex:910
 #, elixir-autogen, elixir-format
 msgid "Textarea"
 msgstr "Многострочное поле"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:935
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1261
 #, elixir-autogen, elixir-format
 msgid "The accordion's open attribute is the initial state only: after mount the browser owns it, so a section the user opened survives LiveView re-renders. There is no server event for a toggle."
 msgstr "Атрибут open у аккордеона задаёт только начальное состояние: после монтирования им управляет браузер, поэтому раздел, открытый пользователем, переживает перерисовки LiveView. Серверного события для переключения нет."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1929
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2861
 #, elixir-autogen, elixir-format
 msgid "The card on the admin Modules page."
 msgstr "Карточка на странице «Модули» админ-панели."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1769
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2494
 #, elixir-autogen, elixir-format
 msgid "The chips are yours to render. Two pickers in one view need distinct event names, or each receives the other's results."
 msgstr "Метки выбранного вы отрисовываете сами. Двум полям выбора в одном представлении нужны разные имена событий, иначе каждое получит результаты другого."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1913
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2845
 #, elixir-autogen, elixir-format
 msgid "The daisyUI theme dropdown of the admin header."
 msgstr "Выпадающий список тем daisyUI из шапки админ-панели."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1699
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2424
 #, elixir-autogen, elixir-format
 msgid "The ids a bulk action receives come from the browser: load the records they name through your own scoped query before acting on them. Core also ships bulk_actions_toolbar, a ready-made bar for the client-owned scope with Reorder, Delete and Clear."
 msgstr "Идентификаторы массового действия приходят из браузера: прежде чем что-то делать, загрузите соответствующие записи собственным запросом с проверкой прав. В ядре есть и bulk_actions_toolbar — готовая панель для выбора на стороне браузера с кнопками «Изменить порядок», «Удалить» и «Сбросить»."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1710
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2435
 #, elixir-autogen, elixir-format
 msgid "The server received %{count} selected id from the browser."
 msgid_plural "The server received %{count} selected ids from the browser."
@@ -1335,47 +1330,47 @@ msgstr[0] "Сервер получил от браузера %{count} выбра
 msgstr[1] "Сервер получил от браузера %{count} выбранных идентификатора."
 msgstr[2] "Сервер получил от браузера %{count} выбранных идентификаторов."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1395
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1870
 #, elixir-autogen, elixir-format
 msgid "The submit button lives in the actions slot, outside the form, and is tied to it by the form attribute. Never build a modal from a raw dialog element with the modal-open class: it is not in the top layer, so it has no focus trap and Esc does nothing."
 msgstr "Кнопка отправки находится в слоте actions, вне формы, и связана с ней атрибутом form. Никогда не собирайте модальное окно из «голого» элемента dialog с классом modal-open: он не попадает в верхний слой, поэтому фокус не удерживается, а Esc ничего не делает."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1256
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1624
 #, elixir-autogen, elixir-format
 msgid "The two pieces every edit page is built from: form_section is the titled card around a group of fields, form_actions is the Cancel and Submit footer."
 msgstr "Две части, из которых состоит любая страница редактирования: form_section — карточка с заголовком вокруг группы полей, form_actions — подвал с кнопками «Отмена» и отправки."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1814
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2569
 #, elixir-autogen, elixir-format
 msgid "The wrapped counterpart to the hand-rolled empty panel above. Three variants share one shape: compact, card, and featured."
 msgstr "Готовый компонент вместо самодельной пустой панели выше. Три варианта с одинаковым набором атрибутов: compact, card и featured."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1785
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2522
 #, elixir-autogen, elixir-format
 msgid "The wrapped counterpart to the hand-rolled join buttons above. It builds the page URLs from base_path and params, preserving your query string. The links below patch back to this page."
 msgstr "Готовый компонент вместо самодельных объединённых кнопок выше. Он строит адреса страниц из base_path и params, сохраняя параметры запроса. Ссылки ниже ведут обратно на эту страницу."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:822
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1085
 #, elixir-autogen, elixir-format
 msgid "The wrapped counterpart to the raw buttons above. The variant replaces the base colour instead of fighting it, and a navigate, patch or href attribute renders a link styled as a button."
 msgstr "Готовый компонент вместо «голых» кнопок выше. Вариант заменяет базовый цвет, а не спорит с ним, а атрибут navigate, patch или href даёт ссылку, оформленную как кнопка."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1462
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1944
 #, elixir-autogen, elixir-format
 msgid "The wrapped counterpart to the raw table above, as a list page uses it: a search box in the toolbar, sortable headers, a row menu, and a card view on small screens."
 msgstr "Готовый компонент вместо «голой» таблицы выше — так, как его использует страница списка: поиск в панели инструментов, сортируемые заголовки, меню строки и карточки на маленьких экранах."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1936
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2894
 #, elixir-autogen, elixir-format
 msgid "These need runtime context a generic template cannot supply — a user, an upload, a configured integration. They are in core and ready to use where that context exists."
 msgstr "Им нужен контекст времени выполнения, которого нет у универсального шаблона, — пользователь, загрузка файла, настроенная интеграция. Они есть в ядре и готовы к использованию там, где такой контекст есть."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1199
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1567
 #, elixir-autogen, elixir-format
 msgid "These take a raw path starting with a slash and apply the prefix themselves. A path that already went through Routes.path — every Paths helper — goes to a plain link or to the button component instead, or it is prefixed twice."
 msgstr "Они принимают «сырой» путь, начинающийся с косой черты, и сами добавляют префикс. Путь, уже прошедший через Routes.path, — результат любого помощника Paths — передавайте обычной ссылке или компоненту button, иначе префикс добавится дважды."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1424
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1906
 #, elixir-autogen, elixir-format
 msgid "This button asks the server; the panel stays open through the re-render."
 msgstr "Эта кнопка обращается к серверу; панель остаётся открытой после перерисовки."
@@ -1395,7 +1390,7 @@ msgstr "Эта страница — ваша отправная точка. За
 msgid "This tab was contributed by the Hello World module through the project-extension contract and is rendered by the projects hub."
 msgstr "Эту вкладку добавил модуль Hello World через контракт расширений проекта, а отрисовывает её центр проектов."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1068
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1436
 #, elixir-autogen, elixir-format
 msgid "Time display"
 msgstr "Отображение времени"
@@ -1405,7 +1400,7 @@ msgstr "Отображение времени"
 msgid "To show the inbox bell in your layout, render the embeddable nested LiveView:"
 msgstr "Чтобы показать колокольчик уведомлений в своём макете, отрисуйте встраиваемый вложенный LiveView:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1011
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1337
 #, elixir-autogen, elixir-format
 msgid "Total registered"
 msgstr "Всего зарегистрировано"
@@ -1415,22 +1410,22 @@ msgstr "Всего зарегистрировано"
 msgid "Try it"
 msgstr "Попробуйте"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1586
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2311
 #, elixir-autogen, elixir-format
 msgid "Two ways to select rows. Client-owned: the selection lives in the browser and the server hears about it only when an action fires. Server-owned: every checkbox is an event and the server holds the set."
 msgstr "Два способа выбирать строки. На стороне браузера: выбор живёт в браузере, и сервер узнаёт о нём только при запуске действия. На стороне сервера: каждый флажок — событие, а набор хранит сервер."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1754
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2479
 #, elixir-autogen, elixir-format
 msgid "Type a name…"
 msgstr "Введите имя…"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:634
+#: lib/phoenix_kit_hello_world/web/components_live.ex:897
 #, elixir-autogen, elixir-format
 msgid "Type here"
 msgstr "Введите текст"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1357
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1823
 #, elixir-autogen, elixir-format
 msgid "Type something, then press Esc or click outside: the dialog stays open, because closing would discard what you typed. Use Discard or Save."
 msgstr "Введите что-нибудь, затем нажмите Esc или щёлкните снаружи: окно останется открытым, потому что закрытие стёрло бы введённое. Используйте «Не сохранять» или «Сохранить»."
@@ -1440,18 +1435,18 @@ msgstr "Введите что-нибудь, затем нажмите Esc или
 msgid "Update callbacks in %{file} — module key, name, tabs"
 msgstr "Обновите колбэки в %{file} — ключ модуля, название, вкладки"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1226
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1594
 #, elixir-autogen, elixir-format
 msgid "User"
 msgstr "Пользователь"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1915
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2847
 #, elixir-autogen, elixir-format
 msgid "User helpers. They need a user with preloaded roles."
 msgstr "Помощники для пользователя. Им нужен пользователь с предзагруженными ролями."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:579
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1010
+#: lib/phoenix_kit_hello_world/web/components_live.ex:842
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1336
 #, elixir-autogen, elixir-format
 msgid "Users"
 msgstr "Пользователи"
@@ -1461,7 +1456,7 @@ msgstr "Пользователи"
 msgid "Version"
 msgstr "Версия"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1517
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2013
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Открыть"
@@ -1471,38 +1466,38 @@ msgstr "Открыть"
 msgid "View details"
 msgstr "Подробнее"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1572
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2070
 #, elixir-autogen, elixir-format
 msgid "Viewed %{name}."
 msgstr "Открыто: %{name}."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:476
-#: lib/phoenix_kit_hello_world/web/components_live.ex:833
+#: lib/phoenix_kit_hello_world/web/components_live.ex:739
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1096
 #, elixir-autogen, elixir-format
 msgid "Warning"
 msgstr "Предупреждение"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:905
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1231
 #, elixir-autogen, elixir-format
 msgid "What is PhoenixKit?"
 msgstr "Что такое PhoenixKit?"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:767
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1030
 #, elixir-autogen, elixir-format
 msgid "What to show when there's no data."
 msgstr "Что показывать, когда данных нет."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:523
+#: lib/phoenix_kit_hello_world/web/components_live.ex:786
 #, elixir-autogen, elixir-format
 msgid "With icon"
 msgstr "С иконкой"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:173
+#: lib/phoenix_kit_hello_world/web/components_live.ex:244
 #, elixir-autogen, elixir-format
 msgid "Write a note before saving."
 msgstr "Напишите заметку перед сохранением."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1380
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1846
 #, elixir-autogen, elixir-format
 msgid "Yes, increment"
 msgstr "Да, увеличить"
@@ -1542,47 +1537,47 @@ msgstr "Ваши последние уведомления"
 msgid "anonymous"
 msgstr "аноним"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:976
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1302
 #, elixir-autogen, elixir-format
 msgid "border — the underline look, for show pages and settings:"
 msgstr "border — с подчёркиванием, для страниц просмотра и настроек:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:966
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1292
 #, elixir-autogen, elixir-format
 msgid "boxed (default), with a trailing slot for a control that belongs to the strip:"
 msgstr "boxed (по умолчанию), со слотом trailing для элемента управления, относящегося к полосе вкладок:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1829
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2584
 #, elixir-autogen, elixir-format
 msgid "card — stands alone in the page body, with a call to action:"
 msgstr "card — самостоятельный блок в теле страницы, с призывом к действию:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1822
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2577
 #, elixir-autogen, elixir-format
 msgid "compact — nothing matches a filter, inside an existing section:"
 msgstr "compact — под фильтр ничего не подходит, внутри существующего раздела:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:667
+#: lib/phoenix_kit_hello_world/web/components_live.ex:930
 #, elixir-autogen, elixir-format
 msgid "daisyUI 5 styles a select through a wrapping label that carries the select class. A form with phx-change needs an id, or LiveView cannot recover it after a reconnect."
 msgstr "daisyUI 5 оформляет select через обёртку label с классом select. Форме с phx-change нужен id, иначе LiveView не сможет восстановить её после переподключения."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:468
+#: lib/phoenix_kit_hello_world/web/components_live.ex:731
 #, elixir-autogen, elixir-format
 msgid "daisyUI badges for status, labels, and counts."
 msgstr "Значки daisyUI для статусов, меток и счётчиков."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:505
+#: lib/phoenix_kit_hello_world/web/components_live.ex:768
 #, elixir-autogen, elixir-format
 msgid "daisyUI buttons — various colors, sizes, and states."
 msgstr "Кнопки daisyUI — разные цвета, размеры и состояния."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:623
+#: lib/phoenix_kit_hello_world/web/components_live.ex:886
 #, elixir-autogen, elixir-format
 msgid "daisyUI form controls — text, textarea, select, checkbox."
 msgstr "Элементы форм daisyUI — текстовое поле, многострочное поле, список выбора, флажок."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:898
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1224
 #, elixir-autogen, elixir-format
 msgid "daisyUI's collapse, and core's accordion — a native details element that keeps the state the user left it in."
 msgstr "collapse из daisyUI и accordion из ядра — нативный элемент details, который сохраняет состояние, в котором его оставил пользователь."
@@ -1592,7 +1587,7 @@ msgstr "collapse из daisyUI и accordion из ядра — нативный э
 msgid "events"
 msgstr "событий"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1847
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2602
 #, elixir-autogen, elixir-format
 msgid "featured — the first-run state of a whole page:"
 msgstr "featured — состояние целой страницы при первом запуске:"
@@ -1602,32 +1597,22 @@ msgstr "featured — состояние целой страницы при пе�
 msgid "just now"
 msgstr "только что"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1802
-#, elixir-autogen, elixir-format
-msgid "pagination renders patch links, so the page needs a handle_params callback."
-msgstr "pagination отрисовывает patch-ссылки, поэтому странице нужен колбэк handle_params."
-
-#: lib/phoenix_kit_hello_world/web/components_live.ex:982
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1308
 #, elixir-autogen, elixir-format
 msgid "plain — no frame, for tabs inside an already framed container:"
 msgstr "plain — без рамки, для вкладок внутри контейнера, у которого рамка уже есть:"
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1215
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1583
 #, elixir-autogen, elixir-format
 msgid "simple_form with input, select, textarea and checkbox: each wires its label and error display to the form field."
 msgstr "simple_form с input, select, textarea и checkbox: каждый связывает свою подпись и вывод ошибок с полем формы."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1563
-#, elixir-autogen, elixir-format
-msgid "sort is a map with by and dir; a header click sends toggle_sort with the field name. The search box sends its event with the text under the search key, debounced. The card and table toggle is remembered in the browser."
-msgstr "sort — это map с ключами by и dir; щелчок по заголовку отправляет toggle_sort с именем поля. Поле поиска отправляет своё событие с задержкой, текст — под ключом search. Выбор между карточками и таблицей запоминается в браузере."
-
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1087
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1455
 #, elixir-autogen, elixir-format
 msgid "time_ago uses core's TimeAgo hook for live updates."
 msgstr "time_ago использует хук TimeAgo из ядра для обновления на лету."
 
-#: lib/phoenix_kit_hello_world/web/components_live.ex:1069
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1437
 #, elixir-autogen, elixir-format
 msgid "time_ago, which updates itself in the browser, and age_badge."
 msgstr "time_ago, который сам обновляется в браузере, и age_badge."
@@ -1664,3 +1649,495 @@ msgstr "%{w} × %{h} ячеек"
 #, elixir-autogen, elixir-format
 msgid "last tick %{time}"
 msgstr "последнее обновление %{time}"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1192
+#, elixir-autogen, elixir-format
+msgid "A coloured dot with an optional label, for online or offline, connected, syncing — the little circle that keeps being hand-rolled."
+msgstr "Цветная точка с необязательной подписью: в сети или не в сети, подключено, синхронизация — тот маленький кружок, который постоянно рисуют вручную."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1378
+#, elixir-autogen, elixir-format
+msgid "A large card for the one or two numbers a dashboard leads with."
+msgstr "Крупная карточка для одной-двух цифр, с которых начинается дашборд."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1391
+#, elixir-autogen, elixir-format
+msgid "A link to the report behind the number"
+msgstr "Ссылка на отчёт, стоящий за цифрой"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1683
+#, elixir-autogen, elixir-format
+msgid "A quieter section heading for fields inside one card, a number field that accepts a comma and a dot, and a Save button that says whether there is anything to save."
+msgstr "Более спокойный заголовок раздела для полей внутри одной карточки, числовое поле, принимающее и запятую, и точку, и кнопка «Сохранить», которая показывает, есть ли что сохранять."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2873
+#, elixir-autogen, elixir-format
+msgid "A read-only modal card with a carousel of a record's photos and files. It needs stored media."
+msgstr "Модальная карточка только для чтения с каруселью фото и файлов записи. Нужны сохранённые медиафайлы."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2863
+#, elixir-autogen, elixir-format
+msgid "A searchable tree for picking one record or several out of a nested set. A LiveComponent that needs a tree built with PhoenixKit.Utils.Tree."
+msgstr "Дерево с поиском для выбора одной или нескольких записей из вложенного набора. LiveComponent, которому нужно дерево, построенное через PhoenixKit.Utils.Tree."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2871
+#, elixir-autogen, elixir-format
+msgid "A slice of the Activity log as a table. It needs entries from Activity.list/1."
+msgstr "Фрагмент журнала активности в виде таблицы. Нужны записи из Activity.list/1."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1390
+#, elixir-autogen, elixir-format
+msgid "Administrators"
+msgstr "Администраторы"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2699
+#, elixir-autogen, elixir-format
+msgid "Charts — line_chart, bar_chart, sparkline, chart_lanes"
+msgstr "Диаграммы — line_chart, bar_chart, sparkline, chart_lanes"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2690
+#, elixir-autogen, elixir-format
+msgid "Code freeze"
+msgstr "Заморозка кода"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2206
+#, elixir-autogen, elixir-format
+msgid "Columns"
+msgstr "Столбцы"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2766
+#, elixir-autogen, elixir-format
+msgid "Date navigation"
+msgstr "Навигация по датам"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2296
+#, elixir-autogen, elixir-format
+msgid "Delete asked for %{count} selected person (a demo: nothing changed)."
+msgid_plural "Delete asked for %{count} selected people (a demo: nothing changed)."
+msgstr[0] "Запрошено удаление %{count} выбранного человека (демо: ничего не изменилось)."
+msgstr[1] "Запрошено удаление %{count} выбранных человек (демо: ничего не изменилось)."
+msgstr[2] "Запрошено удаление %{count} выбранных человек (демо: ничего не изменилось)."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1788
+#, elixir-autogen, elixir-format
+msgid "Error alert"
+msgstr "Сообщение об ошибке"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1681
+#, elixir-autogen, elixir-format
+msgid "Form extras — section_header, decimal_input, save_button"
+msgstr "Дополнения к формам — section_header, decimal_input, save_button"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2683
+#, elixir-autogen, elixir-format
+msgid "Freeze"
+msgstr "Заморозка"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2751
+#, elixir-autogen, elixir-format
+msgid "Give the wrapper a height, or the chart takes the shape of its viewBox. Points are plain numbers: map time, money or rank to x and y first; Decimal values are converted. chart_lanes takes the same x_domain as the chart above it, so its bands line up with the chart's x. Pass aria_label to name the chart, or it is marked decorative."
+msgstr "Задайте обёртке высоту, иначе диаграмма примет форму своего viewBox. Точки — обычные числа: сначала переведите время, деньги или место в x и y; значения Decimal преобразуются. chart_lanes принимает тот же x_domain, что и диаграмма над ним, поэтому полосы совпадают с осью x. Передайте aria_label, чтобы назвать диаграмму, иначе она считается декоративной."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1377
+#, elixir-autogen, elixir-format
+msgid "Hero stat card"
+msgstr "Hero-карточка статистики"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1384
+#, elixir-autogen, elixir-format
+msgid "In the sample table above"
+msgstr "В примере таблицы выше"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1785
+#, elixir-autogen, elixir-format
+msgid "Info alert"
+msgstr "Информационное сообщение"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:579
+#, elixir-autogen, elixir-format
+msgid "Joined"
+msgstr "Дата присоединения"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2867
+#, elixir-autogen, elixir-format
+msgid "Language tabs and translatable fields (PhoenixKitWeb.Components.MultilangForm). They need the multilang setup of a real record and form."
+msgstr "Вкладки языков и переводимые поля (PhoenixKitWeb.Components.MultilangForm). Нужна мультиязычная настройка реальной записи и формы."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1696
+#, elixir-autogen, elixir-format
+msgid "Measurements"
+msgstr "Измерения"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2914
+#, elixir-autogen, elixir-format
+msgid "Most core components live in phoenix_kit's lib/phoenix_kit_web/components/core directory; the larger ones (TreePicker, MultilangForm, FolderExplorer, the media browser, the dashboard and admin navigation) sit beside it in components/. Each one declares its attributes and slots — read them for the options this page does not show."
+msgstr "Большинство компонентов ядра лежит в каталоге lib/phoenix_kit_web/components/core в phoenix_kit; более крупные (TreePicker, MultilangForm, FolderExplorer, медиабраузер, дашборд и навигация админки) находятся рядом, в components/. Каждый объявляет свои атрибуты и слоты — читайте их, чтобы узнать варианты, которых эта страница не показывает."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2271
+#, elixir-autogen, elixir-format
+msgid "Name and the row handle are always on, so they are not in the column catalog. TableColumns saves a signed-in user's choice (their view preferences), and Reset takes it back out so they follow the default again. A table_default also takes its own toolbar_primary slot; the bulk toolbar's primary slot plays the same role. The reorder ids, like every id a handler gets, are checked against the rows you rendered."
+msgstr "Имя и ручка строки всегда включены, поэтому их нет в каталоге столбцов. TableColumns сохраняет выбор вошедшего пользователя (его настройки вида), а «Сбросить» удаляет его, чтобы он снова следовал значениям по умолчанию. У table_default тоже есть собственный слот toolbar_primary; слот primary панели массовых действий играет ту же роль. Идентификаторы при переупорядочивании, как и любые id, приходящие в обработчик, сверяются с показанными строками."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1979
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2211
+#, elixir-autogen, elixir-format
+msgid "New person"
+msgstr "Новый человек"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2805
+#, elixir-autogen, elixir-format
+msgid "Not rendered here on purpose: the admin layout already draws the page header, from the page_title, page_subtitle and breadcrumb assigns this page sets in mount."
+msgstr "Здесь намеренно не показан: шапку страницы уже рисует админ-layout по значениям page_title, page_subtitle и хлебных крошек, которые эта страница задаёт в mount."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2814
+#, elixir-autogen, elixir-format
+msgid "On an admin page that core's layout wraps: set page_title (and page_section, page_crumbs, page_subtitle) and render no header of your own — a second one would stack under the bar."
+msgstr "На странице админки, которую оборачивает layout ядра: задайте page_title (а также page_section, page_crumbs, page_subtitle) и не рисуйте собственную шапку — вторая встала бы под панелью."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2193
+#, elixir-autogen, elixir-format
+msgid "One table with the pieces a managed list needs: drag handles with sortable rows, a bulk selection toolbar with the page's primary action, and a column editor that remembers each user's choice."
+msgstr "Одна таблица со всем, что нужно управляемому списку: ручки перетаскивания с сортируемыми строками, панель массового выбора с главным действием страницы и редактор столбцов, запоминающий выбор каждого пользователя."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2142
+#, elixir-autogen, elixir-format
+msgid "Open %{name}"
+msgstr "Открыть %{name}"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2151
+#, elixir-autogen, elixir-format
+msgid "Open events"
+msgstr "Открыть события"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2246
+#, elixir-autogen, elixir-format
+msgid "Order:"
+msgstr "Порядок:"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1383
+#, elixir-autogen, elixir-format
+msgid "People"
+msgstr "Люди"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1719
+#, elixir-autogen, elixir-format
+msgid "Pieces"
+msgstr "Количество, шт."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2678
+#, elixir-autogen, elixir-format
+msgid "Planned"
+msgstr "Запланировано"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2723
+#, elixir-autogen, elixir-format
+msgid "Planned work over the same seven days"
+msgstr "Запланированная работа за те же семь дней"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2768
+#, elixir-autogen, elixir-format
+msgid "Previous, next and today over a date kept in the URL — the header of a page that shows one day at a time. The buttons patch back to this page with ?date=."
+msgstr "Назад, вперёд и «сегодня» по дате, хранящейся в URL, — шапка страницы, показывающей по одному дню. Кнопки делают patch обратно на эту страницу с ?date=."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1701
+#, elixir-autogen, elixir-format
+msgid "Quantity"
+msgstr "Количество"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1706
+#, elixir-autogen, elixir-format
+msgid "Quantity:"
+msgstr "Количество:"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2676
+#, elixir-autogen, elixir-format
+msgid "Release"
+msgstr "Релиз"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2288
+#, elixir-autogen, elixir-format
+msgid "Reorder asked for %{count} selected person (a demo: nothing changed)."
+msgid_plural "Reorder asked for %{count} selected people (a demo: nothing changed)."
+msgstr[0] "Запрошено изменение порядка для %{count} выбранного человека (демо: ничего не изменилось)."
+msgstr[1] "Запрошено изменение порядка для %{count} выбранных человек (демо: ничего не изменилось)."
+msgstr[2] "Запрошено изменение порядка для %{count} выбранных человек (демо: ничего не изменилось)."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2881
+#, elixir-autogen, elixir-format
+msgid "Runs an OAuth authorization in a popup. It needs the app's OAuth start and callback routes."
+msgstr "Запускает OAuth-авторизацию во всплывающем окне. Нужны маршруты старта и callback OAuth в приложении."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2716
+#, elixir-autogen, elixir-format
+msgid "Sample values over seven days"
+msgstr "Примерные значения за семь дней"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2734
+#, elixir-autogen, elixir-format
+msgid "Sample values per day"
+msgstr "Примерные значения по дням"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2741
+#, elixir-autogen, elixir-format
+msgid "Sample values, trend"
+msgstr "Примерные значения, тренд"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2701
+#, elixir-autogen, elixir-format
+msgid "Server-rendered SVG: no JavaScript and no chart library. They re-draw whenever the assigns change and take their colour from the text colour you set."
+msgstr "SVG, отрисованный на сервере: без JavaScript и без библиотеки диаграмм. Перерисовываются при каждом изменении assigns и берут цвет из заданного вами цвета текста."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2781
+#, elixir-autogen, elixir-format
+msgid "Showing %{date}"
+msgstr "Показано: %{date}"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1190
+#, elixir-autogen, elixir-format
+msgid "Status dot"
+msgstr "Индикатор статуса"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2191
+#, elixir-autogen, elixir-format
+msgid "Table — manual order, columns and bulk toolbar"
+msgstr "Таблица — ручной порядок, столбцы и панель массовых действий"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2083
+#, elixir-autogen, elixir-format
+msgid "Table — tree rows and clickable rows"
+msgstr "Таблица — древовидные и кликабельные строки"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2877
+#, elixir-autogen, elixir-format
+msgid "The Updated marker of an accordion with cue set. It lives inside accordion, which pushes the highlight from the server."
+msgstr "Метка «Обновлено» аккордеона с включённым cue. Живёт внутри accordion, который получает подсветку с сервера."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1210
+#, elixir-autogen, elixir-format
+msgid "The default announced state is generic (online, offline); for a payment or a job pass state_label so a screen reader hears what it is."
+msgstr "Состояние по умолчанию озвучивается обобщённо (в сети, не в сети); для платежа или задания передайте state_label, чтобы программа чтения с экрана сказала, что это."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2885
+#, elixir-autogen, elixir-format
+msgid "The folder tree of the media browser. The consumer implements its navigation events."
+msgstr "Дерево папок медиабраузера. События навигации реализует потребитель."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2170
+#, elixir-autogen, elixir-format
+msgid "The tree walk and the expanded set are yours: skip the children of a collapsed node when you build the rows. row_link is not in the global import list; every control in the row that must stay clickable needs relative z-10."
+msgstr "Обход дерева и набор раскрытых узлов — ваши: пропускайте детей свёрнутого узла при построении строк. row_link не входит в общий список импорта; каждому элементу строки, который должен остаться кликабельным, нужен relative z-10."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1884
+#, elixir-autogen, elixir-format
+msgid "This is a notice. Press OK to acknowledge it."
+msgstr "Это уведомление. Нажмите OK, чтобы подтвердить."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1880
+#, elixir-autogen, elixir-format
+msgid "This is a warning: the action is allowed, but check it first."
+msgstr "Это предупреждение: действие разрешено, но сначала проверьте его."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1883
+#, elixir-autogen, elixir-format
+msgid "This is an error: the action did not go through."
+msgstr "Это ошибка: действие не выполнено."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2085
+#, elixir-autogen, elixir-format
+msgid "Two cell-level pieces for a table_default. tree_name_cell turns the name cell into a collapsible tree row; row_link makes a whole row one real link."
+msgstr "Два элемента уровня ячейки для table_default. tree_name_cell превращает ячейку имени в сворачиваемую строку дерева; row_link делает всю строку одной настоящей ссылкой."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1787
+#, elixir-autogen, elixir-format
+msgid "Warning alert"
+msgstr "Предупреждение"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1702
+#, elixir-autogen, elixir-format
+msgid "Weight"
+msgstr "Вес"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1707
+#, elixir-autogen, elixir-format
+msgid "Weight:"
+msgstr "Вес:"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2822
+#, elixir-autogen, elixir-format
+msgid "Where no layout draws one: a page of your own outside the admin shell, or a panel with its own title and a back link and actions on its right."
+msgstr "Там, где шапку не рисует ни один layout: ваша собственная страница вне оболочки админки или панель со своим заголовком, ссылкой «назад» и действиями справа."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1403
+#, elixir-autogen, elixir-format
+msgid "With navigate the whole card is a link; pass a path already built through Paths."
+msgstr "С navigate вся карточка становится ссылкой; передайте путь, уже построенный через Paths."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2820
+#, elixir-autogen, elixir-format
+msgid "You do"
+msgstr "Нужен"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2812
+#, elixir-autogen, elixir-format
+msgid "You do not need it"
+msgstr "Не нужен"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1746
+#, elixir-autogen, elixir-format
+msgid "above the maximum"
+msgstr "выше максимума"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2803
+#, elixir-autogen, elixir-format
+msgid "admin_page_header — when you need it"
+msgstr "admin_page_header — когда он нужен"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2833
+#, elixir-autogen, elixir-format
+msgid "back must already be a resolved path (Paths, not a literal). The subtitle shows only when the site's show_page_descriptions setting is on."
+msgstr "back должен быть уже готовым путём (из Paths, а не литералом). Подзаголовок показывается, только если включена настройка сайта show_page_descriptions."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2727
+#, elixir-autogen, elixir-format
+msgid "bar_chart, measured from a zero baseline"
+msgstr "bar_chart, отсчёт от нулевой линии"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1711
+#, elixir-autogen, elixir-format
+msgid "bare — the control alone, as an item of your own group:"
+msgstr "bare — только сам элемент управления, как часть вашей группы:"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1745
+#, elixir-autogen, elixir-format
+msgid "below the minimum"
+msgstr "ниже минимума"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1698
+#, elixir-autogen, elixir-format
+msgid "comma or dot"
+msgstr "запятая или точка"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1734
+#, elixir-autogen, elixir-format
+msgid "decimal_input renders a text field, so the server decides what the text means: parse_decimal takes a comma or a dot and refuses the rest. save_button only draws; the form keeps the dirty and saved flags, and needs phx-auto-recover so a reconnect does not mark it unsaved."
+msgstr "decimal_input рисует текстовое поле, поэтому смысл текста определяет сервер: parse_decimal принимает запятую или точку и отвергает остальное. save_button только рисует; флаги «изменено» и «сохранено» хранит форма, и ей нужен phx-auto-recover, чтобы переподключение не помечало её несохранённой."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1200
+#, elixir-autogen, elixir-format
+msgid "degraded"
+msgstr "деградация"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1744
+#, elixir-autogen, elixir-format
+msgid "empty"
+msgstr "пусто"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1202
+#, elixir-autogen, elixir-format
+msgid "idle"
+msgstr "бездействует"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2708
+#, elixir-autogen, elixir-format
+msgid "line_chart, with a hover readout and lanes under it"
+msgstr "line_chart с подсказкой при наведении и полосами под ним"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1747
+#, elixir-autogen, elixir-format
+msgid "not a number"
+msgstr "не число"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1199
+#, elixir-autogen, elixir-format
+msgid "offline"
+msgstr "не в сети"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1198
+#, elixir-autogen, elixir-format
+msgid "online"
+msgstr "в сети"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2791
+#, elixir-autogen, elixir-format
+msgid "parse_param reads the URL value and clamps it to min and max, so a hand-edited ?date= cannot take the page outside the range. A view with no URL of its own passes event instead of path, and step={7} moves a week at a time."
+msgstr "parse_param читает значение из URL и ограничивает его min и max, поэтому вручную изменённый ?date= не выведет страницу за диапазон. Представление без собственного URL передаёт event вместо path, а step={7} двигается по неделям."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1722
+#, elixir-autogen, elixir-format
+msgid "pcs"
+msgstr "шт."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2538
+#, elixir-autogen, elixir-format
+msgid "people"
+msgstr "человек"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2122
+#, elixir-autogen, elixir-format
+msgid "row_link — click anywhere on a row. Its menu stays clickable above the link."
+msgstr "row_link — щёлкайте в любом месте строки. Её меню остаётся кликабельным поверх ссылки."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2061
+#, elixir-autogen, elixir-format
+msgid "sort is a map with by and dir; a header click sends toggle_sort with the field name. The sort selector above the table sends sort_form with only the control that changed — read the other half from your assigns. The search box sends its event with the text under the search key, debounced. toolbar_primary holds the page's create button in the far-right corner. The card and table toggle is remembered in the browser."
+msgstr "sort — это map с by и dir; щелчок по заголовку шлёт toggle_sort с именем поля. Селектор сортировки над таблицей шлёт sort_form только с изменившимся элементом — вторую половину берите из своих assigns. Поле поиска шлёт своё событие с текстом под ключом search, с задержкой. toolbar_primary держит кнопку создания страницы в правом углу. Переключатель карточек и таблицы запоминается в браузере."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2737
+#, elixir-autogen, elixir-format
+msgid "sparkline, inline"
+msgstr "sparkline, встроенный в строку"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1201
+#, elixir-autogen, elixir-format
+msgid "syncing"
+msgstr "синхронизация"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2093
+#, elixir-autogen, elixir-format
+msgid "tree_name_cell — you walk the data into {node, depth} rows and keep the expanded set."
+msgstr "tree_name_cell — вы обходите данные в строки {node, depth} и храните набор раскрытых узлов."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1203
+#, elixir-autogen, elixir-format
+msgid "up is true"
+msgstr "up равно true"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2109
+#, elixir-autogen, elixir-format
+msgid "Expand or collapse %{name}"
+msgstr "Развернуть или свернуть %{name}"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:2555
+#, elixir-autogen, elixir-format
+msgid "pagination renders patch links, so the page needs a handle_params callback. A real list keeps the page size in the URL and resets to page 1 when it changes (core's UrlState does both); this demo holds it in assigns."
+msgstr "pagination рисует patch-ссылки, поэтому странице нужен callback handle_params. Настоящий список хранит размер страницы в URL и сбрасывает страницу на 1 при его смене (UrlState ядра делает и то и другое); в этом демо он лежит в assigns."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1664
+#, elixir-autogen, elixir-format
+msgid "Cancel is a link with cancel_to, an event with cancel_click (add cancel_target inside a LiveComponent), or your own markup in the cancel slot — one of the three. submit_disabled greys the submit button; say why in submit_label, as the empty name does here."
+msgstr "Отмена — это ссылка через cancel_to, событие через cancel_click (внутри LiveComponent добавьте cancel_target) или ваша разметка в слоте cancel — что-то одно из трёх. submit_disabled отключает кнопку отправки; объясните причину в submit_label, как здесь для пустого имени."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1644
+#, elixir-autogen, elixir-format
+msgid "Enter a name to save"
+msgstr "Введите имя, чтобы сохранить"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1786
+#, elixir-autogen, elixir-format
+msgid "Success alert"
+msgstr "Сообщение об успехе"
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1882
+#, elixir-autogen, elixir-format
+msgid "This is a success: the action went through."
+msgstr "Это успех: действие выполнено."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1178
+#, elixir-autogen, elixir-format
+msgid "An unknown status renders as a neutral badge rather than raising. The label is the status string with underscores as spaces. The typed badges take what their domain has: a role map with name and is_system_role, the two user fields is_active and confirmed_at, a referral-code map with number_of_uses, max_uses and expiration_date, a category string, an enabled boolean."
+msgstr "Неизвестный статус отображается нейтральным бейджем, а не вызывает ошибку. Подпись — строка статуса с пробелами вместо подчёркиваний. Типизированные бейджи принимают то, что есть в их предметной области: map роли (name и is_system_role), два поля пользователя is_active и confirmed_at, map реферального кода (number_of_uses, max_uses и expiration_date), строку категории, булево enabled."
+
+#: lib/phoenix_kit_hello_world/web/components_live.ex:1147
+#, elixir-autogen, elixir-format
+msgid "Typed badges — each takes the data of its own domain:"
+msgstr "Типизированные бейджи — каждый принимает данные своей предметной области:"

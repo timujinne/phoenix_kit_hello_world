@@ -14,7 +14,7 @@ defmodule PhoenixKitHelloWorld.Web.NotificationsLiveTest do
   alias PhoenixKit.Notifications
   alias PhoenixKitHelloWorld.Test.Repo
 
-  @path "/en/admin/hello-world/notifications"
+  @path "/admin/hello-world/notifications"
   @custom_text "A fully custom notification from Hello World!"
 
   setup %{conn: conn} do

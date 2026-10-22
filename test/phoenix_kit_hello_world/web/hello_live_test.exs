@@ -15,7 +15,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
     test "renders the landing page", %{conn: conn} do
       conn = put_test_scope(conn, fake_scope())
 
-      {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, _view, html} = live(conn, "/admin/hello-world")
 
       assert html =~ "Hello World Plugin"
       assert html =~ "Module Info"
@@ -24,7 +24,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
 
     test "without scope, the demo button is hidden and a permission warning shows",
          %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, _view, html} = live(conn, "/admin/hello-world")
 
       refute html =~ "Log demo event"
       assert html =~ "permission to log events"
@@ -33,7 +33,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
     test "with module access, the demo button is rendered", %{conn: conn} do
       conn = put_test_scope(conn, fake_scope(permissions: ["hello_world"]))
 
-      {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, _view, html} = live(conn, "/admin/hello-world")
 
       assert html =~ "Log demo event"
     end
@@ -43,7 +43,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
     test "Log demo event button has phx-disable-with set", %{conn: conn} do
       conn = put_test_scope(conn, fake_scope(permissions: ["hello_world"]))
 
-      {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, _view, html} = live(conn, "/admin/hello-world")
 
       # The button must carry phx-disable-with so double-clicks don't
       # double-log activity. This regex pins C5's fix on the button —
@@ -59,7 +59,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
       user_uuid = scope.user.uuid
 
       conn = put_test_scope(conn, scope)
-      {:ok, view, _html} = live(conn, "/en/admin/hello-world")
+      {:ok, view, _html} = live(conn, "/admin/hello-world")
 
       rendered = render_click(view, "log_demo_event", %{})
 
@@ -77,7 +77,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
       # No scope — the button is hidden in the template, but we can still
       # trigger the event (it's a server-side handler) to verify the gate
       # behaves correctly under hostile input.
-      {:ok, view, _html} = live(conn, "/en/admin/hello-world")
+      {:ok, view, _html} = live(conn, "/admin/hello-world")
 
       rendered = render_click(view, "log_demo_event", %{})
 
@@ -107,7 +107,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
 
     test "granted: the button is rendered and logs a moderation event", %{conn: conn} do
       scope = fake_scope(permissions: ["hello_world", "hello_world.moderate"])
-      {:ok, view, _html} = conn |> put_test_scope(scope) |> live("/en/admin/hello-world")
+      {:ok, view, _html} = conn |> put_test_scope(scope) |> live("/admin/hello-world")
 
       assert has_element?(view, @moderation <> "[phx-disable-with]")
       assert has_element?(view, ~s|[data-can-moderate="true"]|)
@@ -124,7 +124,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
 
     test "base key only: no button, and a crafted event is refused", %{conn: conn} do
       scope = fake_scope(permissions: ["hello_world"])
-      {:ok, view, html} = conn |> put_test_scope(scope) |> live("/en/admin/hello-world")
+      {:ok, view, html} = conn |> put_test_scope(scope) |> live("/admin/hello-world")
 
       # The base-key control is still there; only the sub-gated one is not.
       assert has_element?(view, ~s|button[phx-click="log_demo_event"]|)
@@ -140,7 +140,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
 
     test "the sub key without its base grants nothing", %{conn: conn} do
       scope = fake_scope(permissions: ["hello_world.moderate"])
-      {:ok, view, _html} = conn |> put_test_scope(scope) |> live("/en/admin/hello-world")
+      {:ok, view, _html} = conn |> put_test_scope(scope) |> live("/admin/hello-world")
 
       refute has_element?(view, @moderation)
       render_click(view, "log_moderation_event", %{})
@@ -153,7 +153,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
       {:ok, _} = PhoenixKitHelloWorld.disable_system()
 
       scope = fake_scope(permissions: ["hello_world", "hello_world.moderate"])
-      {:ok, view, _html} = conn |> put_test_scope(scope) |> live("/en/admin/hello-world")
+      {:ok, view, _html} = conn |> put_test_scope(scope) |> live("/admin/hello-world")
 
       refute has_element?(view, @moderation)
       render_click(view, "log_moderation_event", %{})
@@ -161,7 +161,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
     end
 
     test "no scope: refused", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/en/admin/hello-world")
+      {:ok, view, _html} = live(conn, "/admin/hello-world")
 
       refute has_element?(view, @moderation)
       assert render_click(view, "log_moderation_event", %{}) =~ "permission to log moderation"
@@ -171,7 +171,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
 
   describe "sentences with inline markup" do
     test "each sentence renders whole, with its link or code span in place", %{conn: conn} do
-      {:ok, view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, view, html} = live(conn, "/admin/hello-world")
 
       text = html |> LazyHTML.from_fragment() |> LazyHTML.text() |> String.replace(~r/\s+/, " ")
 
@@ -188,13 +188,22 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
       refute html =~ HelloLive.slot_marker()
       refute html =~ "Activity.log/1"
 
-      assert has_element?(view, ~s|a[href="/en/admin/hello-world/events"]|, "Events tab")
-      assert has_element?(view, ~s|a[href="/en/admin/hello-world/components"]|, "Components")
+      assert has_element?(
+               view,
+               ~s|a[href="#{PhoenixKitHelloWorld.Paths.events()}"]|,
+               "Events tab"
+             )
+
+      assert has_element?(
+               view,
+               ~s|a[href="#{PhoenixKitHelloWorld.Paths.components()}"]|,
+               "Components"
+             )
     end
 
     test "the last-logged time is one sentence with the time inside", %{conn: conn} do
       conn = put_test_scope(conn, fake_scope(permissions: ["hello_world"]))
-      {:ok, view, _html} = live(conn, "/en/admin/hello-world")
+      {:ok, view, _html} = live(conn, "/admin/hello-world")
 
       assert render_click(view, "log_demo_event", %{}) =~ ~r/Last logged at \d\d:\d\d:\d\d/
     end
@@ -202,7 +211,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
 
   describe "navigation" do
     test "renders links to Events and Components subpages", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, _view, html} = live(conn, "/admin/hello-world")
 
       assert html =~ "Events feed"
       assert html =~ "Components showcase"
@@ -213,7 +222,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
     test "renders gettext-wrapped dt labels in both info cards", %{conn: conn} do
       conn = put_test_scope(conn, fake_scope(permissions: ["hello_world"]))
 
-      {:ok, _view, html} = live(conn, "/en/admin/hello-world")
+      {:ok, _view, html} = live(conn, "/admin/hello-world")
 
       # Every dt label should appear inside a `<dt …>…</dt>` tag with
       # the exact text the gettext extractor sees as a literal. Long
@@ -248,7 +257,7 @@ defmodule PhoenixKitHelloWorld.Web.HelloLiveTest do
     test "swallows unknown OTP messages without crashing", %{conn: conn} do
       conn = put_test_scope(conn, fake_scope(permissions: ["hello_world"]))
 
-      {:ok, view, _html} = live(conn, "/en/admin/hello-world")
+      {:ok, view, _html} = live(conn, "/admin/hello-world")
 
       # If the catch-all is removed, this raises FunctionClauseError
       # inside the LV process and the next render/1 call returns an

@@ -15,18 +15,32 @@ defmodule PhoenixKitHelloWorld.CorePinConformanceTest do
   Core 1.7 is deliberately excluded: core 2.0.0 squashed the migration chain to
   a V135 floor and this module is verified only against that baseline.
 
-  The floor is `>= 2.38.0 and < 3.0.0` now: the actor and the activity log
-  come from `PhoenixKitWeb.Actor` and `Activity.log/3`, first shipped in core
-  2.38.0 and no longer feature-detected — an older core does not compile the
-  package. Any earlier floor's reasons above still hold below it. Keep the
+  The floor is `>= 2.63.0 and < 3.0.0` now, set by the rule in AGENTS.md that
+  `mix.lock` resolves the floor, so the suite proves the code against it. It
+  is the core the lock resolves, not the oldest core that carries everything
+  the Components page calls: that is 2.47.0 (`save_button`), by the
+  source only — nothing here compiles against it. README's template advice
+  is the "oldest core" floor; AGENTS.md and README disagree, and the
+  maintainer decides which one this repo follows.
+  Any earlier floor's reasons above still hold below it. Keep the
   compound form: patch-precise at the bottom, open through every later 2.x
   minor at the top.
   """
 
-  @must_admit ["2.38.0", "2.38.1", "2.39.0", "2.99.4"]
-  @must_reject ["1.7.236", "2.0.0", "2.0.7", "2.1.0", "2.9.4", "2.37.5", "3.0.0"]
+  @must_admit ["2.63.0", "2.63.1", "2.64.0", "2.99.4"]
+  @must_reject [
+    "1.7.236",
+    "2.0.0",
+    "2.0.7",
+    "2.1.0",
+    "2.9.4",
+    "2.37.5",
+    "2.38.0",
+    "2.62.9",
+    "3.0.0"
+  ]
 
-  test "the :phoenix_kit requirement admits every core >= 2.38.0 minor and nothing else" do
+  test "the :phoenix_kit requirement admits every core >= 2.63.0 minor and nothing else" do
     requirement = core_requirement()
 
     assert match?({:ok, _parsed}, Version.parse_requirement(requirement)),
@@ -36,7 +50,7 @@ defmodule PhoenixKitHelloWorld.CorePinConformanceTest do
       assert Version.match?(version, requirement),
              "`:phoenix_kit` requirement #{inspect(requirement)} rejects core #{version}. " <>
                "A pin that excludes a core minor breaks `mix deps.get` for every host " <>
-               "running this module alongside that core. Keep the floor patch-precise and the ceiling open (`>= 2.38.0 and < 3.0.0`)."
+               "running this module alongside that core. Keep the floor patch-precise and the ceiling open (`>= 2.63.0 and < 3.0.0`)."
     end
 
     for version <- @must_reject do

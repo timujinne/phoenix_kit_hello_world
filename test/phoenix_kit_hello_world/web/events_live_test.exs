@@ -11,7 +11,7 @@ defmodule PhoenixKitHelloWorld.Web.EventsLiveTest do
 
   alias PhoenixKitHelloWorld.Test.Repo
 
-  @path "/en/admin/hello-world/events"
+  @path "/admin/hello-world/events"
 
   defp log!(action, metadata \\ %{}) do
     {:ok, entry} =
@@ -76,7 +76,7 @@ defmodule PhoenixKitHelloWorld.Web.EventsLiveTest do
 
       assert has_element?(
                view,
-               ~s|#entry-#{mine.uuid} a[href="/en/admin/activity/#{mine.uuid}"][title="View details"]|
+               ~s|#entry-#{mine.uuid} a[href="/admin/activity/#{mine.uuid}"][title="View details"]|
              )
 
       # Scoped to module: "hello_world" — another module's entry is not listed.
@@ -207,11 +207,11 @@ defmodule PhoenixKitHelloWorld.Web.EventsLiveTest do
 
       conn = put_test_scope(conn, scope)
 
-      {:ok, overview, _html} = live(conn, "/en/admin/hello-world")
+      {:ok, overview, _html} = live(conn, "/admin/hello-world")
       render_click(overview, "log_demo_event", %{})
       render_click(overview, "log_moderation_event", %{})
 
-      {:ok, notifications, _html} = live(conn, "/en/admin/hello-world/notifications")
+      {:ok, notifications, _html} = live(conn, "/admin/hello-world/notifications")
       render_click(notifications, "send_basic", %{})
       render_click(notifications, "send_custom", %{})
 
