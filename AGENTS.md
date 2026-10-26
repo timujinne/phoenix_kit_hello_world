@@ -292,6 +292,8 @@ Tables born in core — because the module once lived there, or the table predat
 2. The first shape-changing version (V2+) requires core's manifest generator `@excluded_exact` plus regeneration **before** the module releases.
 3. Creation itself leaves core only at the next baseline squash.
 
+Since 2026-10-25 core's migrations never create, change or drop a module's table after V223 — core's `PhoenixKit.Migrations.ModuleOwnedTables` says whose each core-created table is, and a core test fails a later version that names one. A change to a table core created for your module goes into your chain. Core's `dev_docs/plans/2026-10-25-module-table-ownership.md` tracks moving every module there.
+
 Never write a conditional "module absent → drop" migration: it is nondeterministic and destroys data when a host merely removes a package. The full protocol with rationale is the "Adopting a table core already creates" section of `lib/phoenix_kit_hello_world/migrations.ex`; the live reference is `phoenix_kit_legal`'s `PhoenixKit.Modules.Legal.Migrations` and the consent-logs extraction report in that repo's `dev_docs/reports/`.
 
 ### Rules
@@ -371,7 +373,7 @@ publish has succeeded.
 
 ## Pull requests & commits
 
-- Commit messages start with an action verb (`Add`, `Update`, `Fix`, `Remove`, `Merge`). No AI attribution and no `Co-Authored-By` trailers.
+- Commit messages start with an action verb (`Add`, `Update`, `Fix`, `Remove`, `Merge`).
 - Version bumps and CHANGELOG entries land with the release commit on upstream, not in feature PRs.
 - Review files live in `dev_docs/pull_requests/{year}/{pr_number}-{slug}/{AGENT}_REVIEW.md`, one file per reviewing agent, never edited by another agent; `FOLLOW_UP.md` records how each finding was resolved. Severities: `BUG - CRITICAL/HIGH/MEDIUM`, `IMPROVEMENT - HIGH/MEDIUM`, `NITPICK`.
 

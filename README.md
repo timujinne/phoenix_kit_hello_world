@@ -2225,6 +2225,22 @@ first runs. Extraction is an **adoption**, in phases (live reference:
 `phoenix_kit_legal`, `PhoenixKit.Modules.Legal.Migrations` and its
 `dev_docs/reports/2026-08-10-consent-logs-extraction.md`):
 
+**The rule since 2026-10-25: a module's tables are created and changed only by
+its own chain.** Core's migrations no longer touch a module's table after V223
+(core's `PhoenixKit.Migrations.ModuleOwnedTables` says which core-created
+tables are whose, and a core test fails a later version that names one), so a
+change to a table core created for your module always goes into your chain,
+never into a core release. Core's
+`dev_docs/plans/2026-10-25-module-table-ownership.md` tracks moving every
+module there.
+
+**Prove your chain builds its tables without core**: on a host core's chain
+runs first, so your adoption DDL never runs and nothing shows whether it is
+complete. `PhoenixKit.TestSupport.ModuleChainCheck.check(MyModule.Test.Repo,
+MyModule.Migrations)` from an `async: false` `ExUnit.Case` test builds them
+both ways in a scratch schema and lists every difference (core's
+`dev_docs/guides/2026-09-05-module-table-extraction-guide.md`).
+
 - **Phase 0 — V1 adopts, changes nothing.** `CREATE TABLE IF NOT EXISTS`
   shape-identical to core's baseline with core's exact object names, then a
   **namespaced** marker stamp (`pkl_schema:1` — an adopted table may carry a

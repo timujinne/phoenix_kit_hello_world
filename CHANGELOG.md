@@ -1,10 +1,60 @@
-## Unreleased
+## 0.3.0 - 2026-10-24
+
+The template brought up to current core and its consumers (#41, #42, #44).
+Modules cloned from it now start on core's logging, Actor, header-trail,
+Gettext and resource-link conventions.
+
+### Changed
+
+- **⚠️ Requires `phoenix_kit >= 2.63.0 and < 3.0.0`** (was `~> 2.0`). The
+  floor follows the lock, so the suite proves the pages render against it.
+  By the source, the newest core APIs called are from 2.47.0 (`save_button`);
+  the README asks for that "oldest core" rule instead, and the choice between
+  the two rules is still open.
+- Adds a `gettext ~> 1.0` dependency. The module ships its own backend
+  (`PhoenixKitHelloWorld.Gettext`) with `en`, `et` and `ru` catalogues, and
+  `priv` is now in the package `files`. Tabs and permission labels carry
+  `gettext_backend:` so they render translated in core's sidebar and the
+  permissions matrix (#42).
+- **Activity logging uses core's `PhoenixKit.Activity.log/3` with
+  `PhoenixKitWeb.Actor.opts/1`** (#41), with no guard, rescue or actor
+  helper of its own. The `Code.ensure_loaded?` guards around core's Activity
+  and Notifications are gone, and every logging example on the pages and in
+  the docs shows the `log/3` form.
+- The Events, Components and Notifications pages set the admin header trail
+  (`page_section` "Hello World" linking to the landing page) (#41).
+- **Components page refreshed for core 2.63** (#42, #44): core `<.modal>`
+  with the unsaved-input guard, `alert_modal`, a drawer, a managed table
+  (sortable rows, drag handles, `bulk_actions_toolbar`,
+  `column_settings_modal` over `PhoenixKitWeb.TableColumns`), bulk select,
+  search picker, form sections, popover, typed badges, `status_dot`,
+  `hero_stat_card`, charts (`line_chart`, `bar_chart`, `sparkline`,
+  `chart_lanes`), `date_nav`, `section_header`/`decimal_input`/`save_button`,
+  `form_actions submit_disabled`, `tree_name_cell`, `row_link`,
+  `pagination_info` and `page_size_selector`. Every new event handler checks
+  its input against a server-side list. The column choice is the only row
+  the page writes (in `ViewPrefs`).
+- New template patterns (#42): `resource_links/0` replaces host config as the
+  way to deep-link the module's resource types; a `"moderate"`
+  sub-permission (`moderate_permission/0`, checked with `Scope.can?/2`) gates
+  a second demo action; the dashboard widget takes the `context` assign,
+  documents lattice sizes and renders its note as sanitised rich text; the
+  project extension covers every field and session key the projects hub
+  reads, applies the session locale and honours `can_write`. The hub's mode
+  is documented as an atom (#43).
+- Callbacks table in `PhoenixKitHelloWorld` lists all 32 callbacks of the
+  core floor. The moduledoc describes `js_sources/0` instead of inline
+  `<script>` tags, which stop working after a LiveView navigation. Routing
+  docs (`Routes`) say that tabs with `live_view:` and dynamic paths cover
+  multi-page admin modules, so a route module is only for what tabs cannot
+  express. `version/0` reads `mix.exs` at compile time.
+- Dependency refresh: `phoenix_kit` 2.64.1 and its transitive set.
 
 ### Fixed
 
 - `mix phoenix_kit_hello_world.audit_migrations` no longer fails coordinators
   that follow the documented namespaced marker convention for adopted tables
-  (`pkl_schema:1`, `pkb_schema:4`, `pkp_schema:14`, ...). The check —
+  (`pkl_schema:1`, `pkb_schema:4`, `pkp_schema:14`, ...) (#40). The check —
   previously "version marker is numeric", now "version marker is a version" —
   accepts both a bare number and a `<namespace>:<number>` marker.
 - The `absent schema reports 0` check's own fixture prefix was 22 bytes,
@@ -17,6 +67,12 @@
   coordinator's own `up/1` to re-read the version mid-migration). The
   message now names the accurate consequence for whichever function is
   actually missing.
+- The Notifications page handles `:notification_updated`, reports a failed
+  send, loads only when connected, and no longer crashes once the viewer has
+  a notification (#42).
+- Fold-out `<details>` sections no longer close whenever the page
+  re-renders (#42).
+- Field labels no longer use daisyUI 4 classes that style nothing in v5.
 
 ## 0.2.2 - 2026-08-11
 
