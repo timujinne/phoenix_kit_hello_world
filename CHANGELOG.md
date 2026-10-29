@@ -1,3 +1,9 @@
+## 0.4.0 - 2026-10-27
+
+### Changed
+
+- **Core pin widened to accept core 3.x** (ceiling `< 4.0.0`; the floor is unchanged).
+
 ## 0.3.0 - 2026-10-24
 
 The template brought up to current core and its consumers (#41, #42, #44).

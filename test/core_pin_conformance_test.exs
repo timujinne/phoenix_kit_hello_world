@@ -27,7 +27,7 @@ defmodule PhoenixKitHelloWorld.CorePinConformanceTest do
   minor at the top.
   """
 
-  @must_admit ["2.63.0", "2.63.1", "2.64.0", "2.99.4"]
+  @must_admit ["2.63.0", "2.63.1", "2.64.0", "2.99.4", "3.0.0", "3.9.9"]
   @must_reject [
     "1.7.236",
     "2.0.0",
@@ -37,7 +37,7 @@ defmodule PhoenixKitHelloWorld.CorePinConformanceTest do
     "2.37.5",
     "2.38.0",
     "2.62.9",
-    "3.0.0"
+    "4.0.0"
   ]
 
   test "the :phoenix_kit requirement admits every core >= 2.63.0 minor and nothing else" do
